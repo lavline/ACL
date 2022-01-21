@@ -1,5 +1,5 @@
 #include"core.h"
-/*
+
 void insert(Cell* c_list, rule* r)
 {
 	rule* p = r;
@@ -27,22 +27,23 @@ void insert(Cell* c_list, rule* r)
 	switch (s_mask)
 	{
 	case 0:
-		c_id[1] = c_id[2] = IP_EDN_CELL;
+		c_id[1] = IP_EDN_CELL_1;
+		c_id[2] = IP_EDN_CELL_2;
 		break;
 	case 1:
-		c_id[1] = (unsigned int)(p->source_ip[3] >> IP_WIDTH);
-		c_id[2] = IP_EDN_CELL;
+		c_id[1] = (unsigned int)(p->source_ip[3] >> IP_WIDTH_1);
+		c_id[2] = IP_EDN_CELL_2;
 		break;
 	default:
-		c_id[1] = (unsigned int)(p->source_ip[3] >> IP_WIDTH);
-		c_id[2] = (unsigned int)(p->source_ip[2] >> IP_WIDTH);
+		c_id[1] = (unsigned int)(p->source_ip[3] >> IP_WIDTH_1);
+		c_id[2] = (unsigned int)(p->source_ip[2] >> IP_WIDTH_2);
 		break;
 	}
 	if (p->destination_port[0] == p->destination_port[1])c_id[3] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
 	else if((unsigned int)(p->destination_port[0] >> PORT_WIDTH) == (unsigned int)(p->destination_port[1] >> PORT_WIDTH))c_id[3] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
 	else c_id[3] = PORT_END_CELL;
 
-	int id = ((c_id[0] * IP_SIZE + c_id[1]) * IP_SIZE + c_id[2]) * PORT_SIZE + c_id[3];
+	int id = ((c_id[0] * IP_SIZE_1 + c_id[1]) * IP_SIZE_2 + c_id[2]) * PORT_SIZE + c_id[3];
 	add_data(c_list + id, &_d);
 }
 
@@ -70,10 +71,10 @@ int match(Cell* c_list, message* m)
 		fprintf(stderr, "Error - unknown message protocol!\n");
 		break;
 	}
-	c_id[1][0] = (unsigned int)(p->source_ip[3] >> IP_WIDTH);
-	c_id[1][1] = IP_EDN_CELL;
-	c_id[2][0] = (unsigned int)(p->source_ip[2] >> IP_WIDTH);
-	c_id[2][1] = IP_EDN_CELL;
+	c_id[1][0] = (unsigned int)(p->source_ip[3] >> IP_WIDTH_1);
+	c_id[1][1] = IP_EDN_CELL_1;
+	c_id[2][0] = (unsigned int)(p->source_ip[2] >> IP_WIDTH_2);
+	c_id[2][1] = IP_EDN_CELL_2;
 	c_id[3][0] = (unsigned int)(p->destination_port >> PORT_WIDTH);
 	c_id[3][1] = PORT_END_CELL;
 
@@ -83,9 +84,9 @@ int match(Cell* c_list, message* m)
 	memcpy(&ed_ip, p->destination_ip, 4);
 
 	for (int i = 0; i < 2; i++) {
-		int id_1 = c_id[0][i] * IP_SIZE;
+		int id_1 = c_id[0][i] * IP_SIZE_1;
 		for (int j = 0; j < 2; j++) {
-			int id_2 = (id_1 + c_id[1][j]) * IP_SIZE;
+			int id_2 = (id_1 + c_id[1][j]) * IP_SIZE_2;
 			for (int v = 0; v < 2; v++) {
 				int id_3 = (id_2 + c_id[2][v]) * PORT_SIZE;
 				for (int w = 0; w < 2; w++) {
@@ -122,7 +123,7 @@ int match(Cell* c_list, message* m)
 
 	return res;
 }
-*/
+
 void get_cell_size(Cell* c)
 {
 	FILE* fp = NULL;
