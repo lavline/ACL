@@ -3,13 +3,16 @@
 #include"tool.h"
 
 #define LEVEL 4
-#define IP_SIZE 17
-#define IP_EDN_CELL 16
-#define IP_WIDTH 4
-#define PORT_SIZE 129
-#define PORT_END_CELL 128
-#define PORT_WIDTH 9
-#define CELL_SIZE 110976
+#define IP_SIZE_1 33
+#define IP_EDN_CELL_1 32
+#define IP_WIDTH_1 3
+#define IP_SIZE_2 257
+#define IP_EDN_CELL_2 256
+#define IP_WIDTH_2 0
+#define PORT_SIZE 65
+#define PORT_END_CELL 64
+#define PORT_WIDTH 10
+#define CELL_SIZE 3244995
 
 void insert(Cell *c_list, rule *r);
 int match(Cell *c_list, message *m);

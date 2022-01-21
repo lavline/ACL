@@ -1,5 +1,5 @@
 #include"core.h"
-
+/*
 void insert(Cell* c_list, rule* r)
 {
 	rule* p = r;
@@ -45,6 +45,7 @@ void insert(Cell* c_list, rule* r)
 	int id = ((c_id[0] * IP_SIZE + c_id[1]) * IP_SIZE + c_id[2]) * PORT_SIZE + c_id[3];
 	add_data(c_list + id, &_d);
 }
+
 
 int match(Cell* c_list, message* m)
 {
@@ -121,7 +122,7 @@ int match(Cell* c_list, message* m)
 
 	return res;
 }
-
+*/
 void get_cell_size(Cell* c)
 {
 	FILE* fp = NULL;
@@ -134,7 +135,7 @@ void get_cell_size(Cell* c)
 
 void analyse_log(ACL_rules* data)
 {
-	int _log[LEVEL][PORT_SIZE] = { 0 };
+	int _log[LEVEL][IP_SIZE_2] = { 0 };
 
 	for (int i = 0; i < data->size; i++) {
 		rule* p = data->list + i;
@@ -158,21 +159,22 @@ void analyse_log(ACL_rules* data)
 		switch (s_mask)
 		{
 		case 0:
-			c_id[1] = c_id[2] = IP_EDN_CELL;
+			c_id[1] = IP_EDN_CELL_1;
+			c_id[2] = IP_EDN_CELL_2;
 			break;
 		case 1:
-			c_id[1] = (unsigned int)(p->source_ip[3] >> IP_WIDTH);
-			c_id[2] = IP_EDN_CELL;
+			c_id[1] = (unsigned int)(p->source_ip[3] >> IP_WIDTH_1);
+			c_id[2] = IP_EDN_CELL_2;
 			break;
 		default:
-			c_id[1] = (unsigned int)(p->source_ip[3] >> IP_WIDTH);
-			c_id[2] = (unsigned int)(p->source_ip[2] >> IP_WIDTH);
+			c_id[1] = (unsigned int)(p->source_ip[3] >> IP_WIDTH_1);
+			c_id[2] = (unsigned int)(p->source_ip[2] >> IP_WIDTH_2);
 			break;
 		}
 		if (p->destination_port[0] == p->destination_port[1])c_id[3] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
 		else if ((unsigned int)(p->destination_port[0] >> PORT_WIDTH) == (unsigned int)(p->destination_port[1] >> PORT_WIDTH))c_id[3] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
 		else c_id[3] = PORT_END_CELL;
-		int id = ((c_id[0] * IP_SIZE + c_id[1]) * IP_SIZE + c_id[2]) * PORT_SIZE + c_id[3];
+		int id = ((c_id[0] * IP_SIZE_1 + c_id[1]) * IP_SIZE_2 + c_id[2]) * PORT_SIZE + c_id[3];
 
 		for (int j = 0; j < LEVEL; j++) {
 			_log[j][c_id[j]]++;
@@ -183,7 +185,7 @@ void analyse_log(ACL_rules* data)
 	fp = fopen("analyse_data.txt", "w");
 	for (int i = 0; i < LEVEL; i++) {
 		fprintf(fp, "%d ", i);
-		for (int j = 0; j < PORT_SIZE; j++)
+		for (int j = 0; j < IP_SIZE_2; j++)
 			fprintf(fp, "%d ", _log[i][j]);
 		fprintf(fp, "\n");
 	}
