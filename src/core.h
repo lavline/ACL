@@ -12,7 +12,7 @@
 #define PORT_SIZE 65
 #define PORT_END_CELL 64
 #define PORT_WIDTH 10
-#define CELL_SIZE 3244995
+#define CELL_SIZE 1653795
 
 void insert(Cell *c_list, rule *r);
 int match(Cell *c_list, message *m);
