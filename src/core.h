@@ -2,13 +2,14 @@
 #define __CORE_H_
 #include"tool.h"
 
+#define LEVEL 4
 #define IP_SIZE 17
 #define IP_EDN_CELL 16
 #define IP_WIDTH 4
-#define PORT_SIZE 65
-#define PORT_END_CELL 64
-#define PORT_WIDTH 10
-#define CELL_SIZE 649539
+#define PORT_SIZE 129
+#define PORT_END_CELL 128
+#define PORT_WIDTH 9
+#define CELL_SIZE 110976
 
 void insert(Cell *c_list, rule *r);
 int match(Cell *c_list, message *m);

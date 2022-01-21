@@ -3,13 +3,13 @@
 void insert(Cell* c_list, rule* r)
 {
 	rule* p = r;
-	int c_id[6]; //index cell id
+	int c_id[LEVEL]; //index cell id
 	data _d;
 	memcpy(&_d, p, sizeof(data));
 	_d.source_mask = (unsigned short)p->source_mask;
 	_d.destination_mask = (unsigned short)p->destination_mask;
+
 	unsigned int s_mask = (unsigned int)(p->source_mask >> 3);
-	unsigned int d_mask = (unsigned int)(p->destination_mask >> 3);
 	switch (p->protocol)
 	{
 	case 0:
@@ -38,23 +38,11 @@ void insert(Cell* c_list, rule* r)
 		c_id[2] = (unsigned int)(p->source_ip[2] >> IP_WIDTH);
 		break;
 	}
-	switch (d_mask)
-	{
-	case 0:
-		c_id[3] = c_id[4] = IP_EDN_CELL;
-		break;
-	case 1:
-		c_id[3] = (unsigned int)(p->destination_ip[3] >> IP_WIDTH);
-		c_id[4] = 4;
-		break;
-	default:
-		c_id[3] = (unsigned int)(p->destination_ip[3] >> IP_WIDTH);
-		c_id[4] = (unsigned int)(p->destination_ip[2] >> IP_WIDTH);
-		break;
-	}
-	if (p->destination_port[0] == p->destination_port[1])c_id[5] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
-	else c_id[5] = PORT_END_CELL;
-	int id = ((((c_id[0] * IP_SIZE + c_id[1]) * IP_SIZE + c_id[2]) * IP_SIZE + c_id[3]) * IP_SIZE + c_id[4]) * PORT_SIZE + c_id[5];
+	if (p->destination_port[0] == p->destination_port[1])c_id[3] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
+	else if((unsigned int)(p->destination_port[0] >> PORT_WIDTH) == (unsigned int)(p->destination_port[1] >> PORT_WIDTH))c_id[3] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
+	else c_id[3] = PORT_END_CELL;
+
+	int id = ((c_id[0] * IP_SIZE + c_id[1]) * IP_SIZE + c_id[2]) * PORT_SIZE + c_id[3];
 	add_data(c_list + id, &_d);
 }
 
@@ -66,7 +54,7 @@ int match(Cell* c_list, message* m)
 
 	Cell* _c = c_list;
 	message* p = m;
-	int c_id[6][2];
+	int c_id[LEVEL][2];
 	switch (p->protocol)
 	{
 	case 1:
@@ -78,18 +66,15 @@ int match(Cell* c_list, message* m)
 		c_id[0][1] = 2;
 		break;
 	default:
+		fprintf(stderr, "Error - unknown message protocol!\n");
 		break;
 	}
 	c_id[1][0] = (unsigned int)(p->source_ip[3] >> IP_WIDTH);
 	c_id[1][1] = IP_EDN_CELL;
 	c_id[2][0] = (unsigned int)(p->source_ip[2] >> IP_WIDTH);
 	c_id[2][1] = IP_EDN_CELL;
-	c_id[3][0] = (unsigned int)(p->destination_ip[3] >> IP_WIDTH);
-	c_id[3][1] = IP_EDN_CELL;
-	c_id[4][0] = (unsigned int)(p->destination_ip[2] >> IP_WIDTH);
-	c_id[4][1] = IP_EDN_CELL;
-	c_id[5][0] = (unsigned int)(p->destination_port >> PORT_WIDTH);
-	c_id[5][1] = PORT_END_CELL;
+	c_id[3][0] = (unsigned int)(p->destination_port >> PORT_WIDTH);
+	c_id[3][1] = PORT_END_CELL;
 
 	int res = 0x7FFFFFFF;
 	unsigned int es_ip, ed_ip;
@@ -100,32 +85,27 @@ int match(Cell* c_list, message* m)
 		int id_1 = c_id[0][i] * IP_SIZE;
 		for (int j = 0; j < 2; j++) {
 			int id_2 = (id_1 + c_id[1][j]) * IP_SIZE;
-			for (int k = 0; k < 2; k++) {
-				int id_3 = (id_2 + c_id[2][k]) * IP_SIZE;
-				for (int r = 0; r < 2; r++) {
-					int id_4 = (id_3 + c_id[3][r]) * IP_SIZE;
-					for (int v = 0; v < 2; v++) {
-						int id_5 = (id_4 + c_id[4][v]) * PORT_SIZE;
-						for (int w = 0; w < 2; w++) {
-							int id_6 = id_5 + c_id[5][w];
-							int _size = _c[id_6].size;
-							if (_size == 0)continue;
-							data* _list = _c[id_6].list;
-							unsigned int _ip;
-							for (int u = 0; u < _size; u++) { //check in cell
-								data* _d = _list + u;
-								if (res < _d->PRI)break;
-								unsigned int m_bit = 32 - (unsigned int)_d->source_mask;  //comput the bit number need to move
-								memcpy(&_ip, _d->source_ip, 4);
-								if (es_ip >> m_bit != _ip >> m_bit)continue;  //if source ip not match, check next
-								memcpy(&_ip, _d->destination_ip, 4);
-								if (ed_ip >> m_bit != _ip >> m_bit)continue;  //if destination ip not match, check next
-								if (p->source_port < _d->source_port[0] || _d->source_port[1] < p->source_port)continue;  //if source port not match, check next
-								if (p->destination_port < _d->destination_port[0] || _d->destination_port[1] < p->destination_port)continue;  //if destination port not match, check next
-								res = _d->PRI;
-								break;
-							}
-						}
+			for (int v = 0; v < 2; v++) {
+				int id_3 = (id_2 + c_id[2][v]) * PORT_SIZE;
+				for (int w = 0; w < 2; w++) {
+					int id_4 = id_3 + c_id[3][w];
+					int _size = _c[id_4].size;
+					if (_size == 0)continue;
+					data* _list = _c[id_4].list;
+					unsigned int _ip;
+					for (int u = 0; u < _size; u++) { //check in cell
+						data* _d = _list + u;
+						if (res < _d->PRI)break;
+						unsigned int m_bit = 32 - (unsigned int)_d->source_mask;  //comput the bit number need to move
+						memcpy(&_ip, _d->source_ip, 4);
+						if (es_ip >> m_bit != _ip >> m_bit)continue;  //if source ip not match, check next
+						m_bit = 32 - (unsigned int)_d->destination_mask;  //comput the bit number need to move
+						memcpy(&_ip, _d->destination_ip, 4);
+						if (ed_ip >> m_bit != _ip >> m_bit)continue;  //if destination ip not match, check next
+						if (p->source_port < _d->source_port[0] || _d->source_port[1] < p->source_port)continue;  //if source port not match, check next
+						if (p->destination_port < _d->destination_port[0] || _d->destination_port[1] < p->destination_port)continue;  //if destination port not match, check next
+						res = _d->PRI;
+						break;
 					}
 				}
 			}
@@ -154,11 +134,11 @@ void get_cell_size(Cell* c)
 
 void analyse_log(ACL_rules* data)
 {
-	int _log[6][PORT_SIZE] = { 0 };
+	int _log[LEVEL][PORT_SIZE] = { 0 };
 
 	for (int i = 0; i < data->size; i++) {
 		rule* p = data->list + i;
-		int c_id[6]; //index cell id
+		int c_id[LEVEL]; //index cell id
 		unsigned int s_mask = (unsigned int)(p->source_mask >> 3);
 		unsigned int d_mask = (unsigned int)(p->destination_mask >> 3);
 		switch (p->protocol)
@@ -189,31 +169,19 @@ void analyse_log(ACL_rules* data)
 			c_id[2] = (unsigned int)(p->source_ip[2] >> IP_WIDTH);
 			break;
 		}
-		switch (d_mask)
-		{
-		case 0:
-			c_id[3] = c_id[4] = IP_EDN_CELL;
-			break;
-		case 1:
-			c_id[3] = (unsigned int)(p->destination_ip[3] >> IP_WIDTH);
-			c_id[4] = 4;
-			break;
-		default:
-			c_id[3] = (unsigned int)(p->destination_ip[3] >> IP_WIDTH);
-			c_id[4] = (unsigned int)(p->destination_ip[2] >> IP_WIDTH);
-			break;
-		}
-		if (p->destination_port[0] == p->destination_port[1])c_id[5] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
-		else c_id[5] = PORT_END_CELL;
+		if (p->destination_port[0] == p->destination_port[1])c_id[3] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
+		else if ((unsigned int)(p->destination_port[0] >> PORT_WIDTH) == (unsigned int)(p->destination_port[1] >> PORT_WIDTH))c_id[3] = (unsigned int)(p->destination_port[0] >> PORT_WIDTH);
+		else c_id[3] = PORT_END_CELL;
+		int id = ((c_id[0] * IP_SIZE + c_id[1]) * IP_SIZE + c_id[2]) * PORT_SIZE + c_id[3];
 
-		for (int j = 0; j < 6; j++) {
+		for (int j = 0; j < LEVEL; j++) {
 			_log[j][c_id[j]]++;
 		}
 	}
 
 	FILE* fp = NULL;
 	fp = fopen("analyse_data.txt", "w");
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < LEVEL; i++) {
 		fprintf(fp, "%d ", i);
 		for (int j = 0; j < PORT_SIZE; j++)
 			fprintf(fp, "%d ", _log[i][j]);
