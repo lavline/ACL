@@ -28,8 +28,9 @@
 void insert(Cell *c_list, rule *r);
 int match(Cell *c_list, message *m);
 
-void check(ACL_rules* r, message* m);
+//void check(ACL_rules* r, message* m);
 void get_cell_size(Cell* c);
 void analyse_log(ACL_rules* data);
+double get_memory(Cell* c_list);
 
 #endif // !__CORE_H_

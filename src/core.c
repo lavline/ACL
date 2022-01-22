@@ -278,3 +278,14 @@ void analyse_log(ACL_rules* data)
 	}
 	fclose(fp);
 }
+
+double get_memory(Cell* c_list)
+{
+	size_t mem = CELL_SIZE * sizeof(Cell);
+	for (int i = 0; i < CELL_SIZE; i++) {
+		mem = mem + (c_list + i)->capacity * sizeof(data);
+	}
+	printf("%u B\n", mem);
+	double res = (double)mem / 1024.0 / 1024.0;
+	return res;
+}
