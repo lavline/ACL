@@ -4,7 +4,7 @@
 
 typedef struct rule {
 	int PRI;  //priority
-	unsigned short protocol;
+	unsigned char protocol[2];
 	unsigned char source_mask;
 	unsigned char destination_mask;
 	unsigned char source_ip[4];
@@ -40,7 +40,7 @@ typedef struct Cell
 
 typedef struct message
 {
-	int protocol;
+	unsigned int protocol;
 	unsigned char source_ip[4];
 	unsigned char destination_ip[4];
 	unsigned short source_port;
