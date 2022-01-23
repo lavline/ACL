@@ -27,6 +27,7 @@
 
 void insert(Cell *c_list, rule *r);
 int match(Cell *c_list, message *m);
+int match_with_log(Cell* c_list, message* m, int* _cycle);
 
 //void check(ACL_rules* r, message* m);
 void get_cell_size(Cell* c);
