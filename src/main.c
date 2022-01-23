@@ -7,7 +7,7 @@ int main() {
 	Cell* index;
 	index = (Cell*)calloc(CELL_SIZE, sizeof(Cell));
 	read_rules("acl1_256k.txt", &datasets);
-	//read_messages("acl1_256k_trace.txt", &message_sets);
+	read_messages("acl1_256k_trace.txt", &message_sets);
 
 	for (int i = 0; i < datasets.size; i++)
 		insert(index, datasets.list + i);
