@@ -43,7 +43,7 @@ void insert(Cell* c_list, rule* r)
 	case 2:
 		c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
 		c_id[IP_LAYER_2] = p->source_ip[2] >> IP_WIDTH_2;
-		c_id[IP_LAYER_3] = IP_EDN_CELL_3
+		c_id[IP_LAYER_3] = IP_EDN_CELL_3;
 		break;
 	default:
 		c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
@@ -276,8 +276,8 @@ void analyse_log(ACL_rules* data)
 		case 2:
 			c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
 			c_id[IP_LAYER_2] = p->source_ip[2] >> IP_WIDTH_2;
-			c_id[IP_LAYER_3] = IP_EDN_CELL_3
-				break;
+			c_id[IP_LAYER_3] = IP_EDN_CELL_3;
+			break;
 		default:
 			c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
 			c_id[IP_LAYER_2] = p->source_ip[2] >> IP_WIDTH_2;
@@ -310,7 +310,7 @@ double get_memory(Cell* c_list)
 	for (int i = 0; i < CELL_SIZE; i++) {
 		mem = mem + (c_list + i)->capacity * sizeof(data);
 	}
-	printf("%u B\n", mem);
+	printf("%zu B\n", mem);
 	double res = (double)mem / 1024.0 / 1024.0;
 	return res;
 }
