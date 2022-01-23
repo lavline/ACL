@@ -43,11 +43,15 @@ void insert(Cell* c_list, rule* r)
 		c_id[IP_LAYER_2] = p->source_ip[2] >> IP_WIDTH_2;
 		break;
 	}
-	if (p->destination_port[0] == p->destination_port[1])c_id[3] = p->destination_port[0] >> PORT_WIDTH;
+	if (p->destination_port[0] == p->destination_port[1])c_id[PORT_LAYER] = p->destination_port[0] >> PORT_WIDTH;
 	else if(p->destination_port[0] >> PORT_WIDTH == p->destination_port[1] >> PORT_WIDTH)c_id[PORT_LAYER] = p->destination_port[0] >> PORT_WIDTH;
 	else c_id[PORT_LAYER] = PORT_END_CELL;
 
 	//int id = ((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3];
+	//printf("%d %d\n", p->PRI, id);
+	//for(int i=0;i<LEVEL;i++)printf("%d ", c_id[i]);
+	//printf("\n");
+
 	add_data(c_list + ((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3], &_d);
 }
 
@@ -259,7 +263,7 @@ void analyse_log(ACL_rules* data)
 			c_id[IP_LAYER_2] = p->source_ip[2] >> IP_WIDTH_2;
 			break;
 		}
-		if (p->destination_port[0] == p->destination_port[1])c_id[3] = p->destination_port[0] >> PORT_WIDTH;
+		if (p->destination_port[0] == p->destination_port[1])c_id[PORT_LAYER] = p->destination_port[0] >> PORT_WIDTH;
 		else if (p->destination_port[0] >> PORT_WIDTH == p->destination_port[1] >> PORT_WIDTH)c_id[PORT_LAYER] = p->destination_port[0] >> PORT_WIDTH;
 		else c_id[PORT_LAYER] = PORT_END_CELL;
 

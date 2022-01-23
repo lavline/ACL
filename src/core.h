@@ -4,29 +4,29 @@
 
 #define LEVEL 4
 
-#define PROTO_LAYER 0  // layer index
+#define PROTO_LAYER 3  // layer index
 #define PROTO_SIZE 4  // protocol layer cell number
 #define PROTO_END_CELL 3  // protocol layer cell end id
 
-#define IP_LAYER_1 1
+#define IP_LAYER_1 0
 #define IP_SIZE_1 33
 #define IP_EDN_CELL_1 32
 #define IP_WIDTH_1 3  // using to comput index cell id ( x >> *_WIDYH = id )
 
-#define IP_LAYER_2 2
+#define IP_LAYER_2 1
 #define IP_SIZE_2 257
 #define IP_EDN_CELL_2 256
 #define IP_WIDTH_2 0
 
-#define PORT_LAYER 3
+#define PORT_LAYER 2
 #define PORT_SIZE 65
 #define PORT_END_CELL 64
 #define PORT_WIDTH 10
 
-#define LAYER_0 PROTO_SIZE
-#define LAYER_1 IP_SIZE_1
-#define LAYER_2 IP_SIZE_2
-#define LAYER_3 PORT_SIZE
+#define LAYER_0 IP_SIZE_1
+#define LAYER_1 IP_SIZE_2
+#define LAYER_2 PORT_SIZE
+#define LAYER_3 PROTO_SIZE
 
 #define CELL_SIZE 2205060
 
