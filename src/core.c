@@ -15,13 +15,13 @@ void insert(Cell* c_list, rule* r)
 		switch ((unsigned int)p->protocol[1])
 		{
 		case TCP:
-			c_id[0] = 0;
+			c_id[PROTO_LAYER] = 0;
 			break;
 		case ICMP:
-			c_id[0] = 1;
+			c_id[PROTO_LAYER] = 1;
 			break;
 		case UDP:
-			c_id[0] = 2;
+			c_id[PROTO_LAYER] = 2;
 			break;
 		default:
 			fprintf(stderr, "Rule %d Error - unknown message protocol %u !\n", p->PRI, p->protocol[1]);
@@ -31,24 +31,24 @@ void insert(Cell* c_list, rule* r)
 	switch (s_mask)
 	{
 	case 0:
-		c_id[1] = IP_EDN_CELL_1;
-		c_id[2] = IP_EDN_CELL_2;
+		c_id[IP_LAYER_1] = IP_EDN_CELL_1;
+		c_id[IP_LAYER_2] = IP_EDN_CELL_2;
 		break;
 	case 1:
-		c_id[1] = p->source_ip[3] >> IP_WIDTH_1;
-		c_id[2] = IP_EDN_CELL_2;
+		c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
+		c_id[IP_LAYER_2] = IP_EDN_CELL_2;
 		break;
 	default:
-		c_id[1] = p->source_ip[3] >> IP_WIDTH_1;
-		c_id[2] = p->source_ip[2] >> IP_WIDTH_2;
+		c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
+		c_id[IP_LAYER_2] = p->source_ip[2] >> IP_WIDTH_2;
 		break;
 	}
 	if (p->destination_port[0] == p->destination_port[1])c_id[3] = p->destination_port[0] >> PORT_WIDTH;
-	else if(p->destination_port[0] >> PORT_WIDTH == p->destination_port[1] >> PORT_WIDTH)c_id[3] = p->destination_port[0] >> PORT_WIDTH;
-	else c_id[3] = PORT_END_CELL;
+	else if(p->destination_port[0] >> PORT_WIDTH == p->destination_port[1] >> PORT_WIDTH)c_id[PORT_LAYER] = p->destination_port[0] >> PORT_WIDTH;
+	else c_id[PORT_LAYER] = PORT_END_CELL;
 
-	int id = ((c_id[0] * IP_SIZE_1 + c_id[1]) * IP_SIZE_2 + c_id[2]) * PORT_SIZE + c_id[3];
-	add_data(c_list + id, &_d);
+	//int id = ((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3];
+	add_data(c_list + ((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3], &_d);
 }
 
 
@@ -68,34 +68,34 @@ int match(Cell* c_list, message* m)
 	switch ((unsigned int)p->protocol)
 	{
 	case TCP:
-		c_id[0][0] = 0;
+		c_id[PROTO_LAYER][0] = 0;
 		break;
 	case ICMP:
-		c_id[0][0] = 1;
+		c_id[PROTO_LAYER][0] = 1;
 		break;
 	case UDP:
-		c_id[0][0] = 2;
+		c_id[PROTO_LAYER][0] = 2;
 		break;
 	default:
 		//fprintf(stderr, "Message Error - unknown message protocol %u!\n", e_protocol);
-		c_id[0][0] = PROTO_END_CELL;
+		c_id[PROTO_LAYER][0] = PROTO_END_CELL;
 		break;
 	}
-	c_id[0][1] = PROTO_END_CELL;
-	c_id[1][0] = p->source_ip[3] >> IP_WIDTH_1;
-	c_id[1][1] = IP_EDN_CELL_1;
-	c_id[2][0] = p->source_ip[2] >> IP_WIDTH_2;
-	c_id[2][1] = IP_EDN_CELL_2;
-	c_id[3][0] = p->destination_port >> PORT_WIDTH;
-	c_id[3][1] = PORT_END_CELL;
+	c_id[PROTO_LAYER][1] = PROTO_END_CELL;
+	c_id[IP_LAYER_1][0] = p->source_ip[3] >> IP_WIDTH_1;
+	c_id[IP_LAYER_1][1] = IP_EDN_CELL_1;
+	c_id[IP_LAYER_2][0] = p->source_ip[2] >> IP_WIDTH_2;
+	c_id[IP_LAYER_2][1] = IP_EDN_CELL_2;
+	c_id[PORT_LAYER][0] = p->destination_port >> PORT_WIDTH;
+	c_id[PORT_LAYER][1] = PORT_END_CELL;
 
 	int res = 0x7FFFFFFF;
 	for (int i = 0; i < 2; i++) {
-		int id_1 = c_id[0][i] * IP_SIZE_1;
+		int id_1 = c_id[0][i] * LAYER_1;
 		for (int j = 0; j < 2; j++) {
-			int id_2 = (id_1 + c_id[1][j]) * IP_SIZE_2;
+			int id_2 = (id_1 + c_id[1][j]) * LAYER_2;
 			for (int v = 0; v < 2; v++) {
-				int id_3 = (id_2 + c_id[2][v]) * PORT_SIZE;
+				int id_3 = (id_2 + c_id[2][v]) * LAYER_3;
 				for (int w = 0; w < 2; w++) {
 					int id_4 = id_3 + c_id[3][w];
 					int _size = _c[id_4].size;
@@ -144,34 +144,34 @@ int match_with_log(Cell* c_list, message* m, int *_cycle)
 	switch ((unsigned int)p->protocol)
 	{
 	case TCP:
-		c_id[0][0] = 0;
+		c_id[PROTO_LAYER][0] = 0;
 		break;
 	case ICMP:
-		c_id[0][0] = 1;
+		c_id[PROTO_LAYER][0] = 1;
 		break;
 	case UDP:
-		c_id[0][0] = 2;
+		c_id[PROTO_LAYER][0] = 2;
 		break;
 	default:
-		fprintf(stderr, "Message Error - unknown message protocol %u!\n", e_protocol);
-		c_id[0][0] = PROTO_END_CELL;
+		//fprintf(stderr, "Message Error - unknown message protocol %u!\n", e_protocol);
+		c_id[PROTO_LAYER][0] = PROTO_END_CELL;
 		break;
 	}
-	c_id[0][1] = PROTO_END_CELL;
-	c_id[1][0] = p->source_ip[3] >> IP_WIDTH_1;
-	c_id[1][1] = IP_EDN_CELL_1;
-	c_id[2][0] = p->source_ip[2] >> IP_WIDTH_2;
-	c_id[2][1] = IP_EDN_CELL_2;
-	c_id[3][0] = p->destination_port >> PORT_WIDTH;
-	c_id[3][1] = PORT_END_CELL;
+	c_id[PROTO_LAYER][1] = PROTO_END_CELL;
+	c_id[IP_LAYER_1][0] = p->source_ip[3] >> IP_WIDTH_1;
+	c_id[IP_LAYER_1][1] = IP_EDN_CELL_1;
+	c_id[IP_LAYER_2][0] = p->source_ip[2] >> IP_WIDTH_2;
+	c_id[IP_LAYER_2][1] = IP_EDN_CELL_2;
+	c_id[PORT_LAYER][0] = p->destination_port >> PORT_WIDTH;
+	c_id[PORT_LAYER][1] = PORT_END_CELL;
 
 	int res = 0x7FFFFFFF;
 	for (int i = 0; i < 2; i++) {
-		int id_1 = c_id[0][i] * IP_SIZE_1;
+		int id_1 = c_id[0][i] * LAYER_1;
 		for (int j = 0; j < 2; j++) {
-			int id_2 = (id_1 + c_id[1][j]) * IP_SIZE_2;
+			int id_2 = (id_1 + c_id[1][j]) * LAYER_2;
 			for (int v = 0; v < 2; v++) {
-				int id_3 = (id_2 + c_id[2][v]) * PORT_SIZE;
+				int id_3 = (id_2 + c_id[2][v]) * LAYER_3;
 				for (int w = 0; w < 2; w++) {
 					int id_4 = id_3 + c_id[3][w];
 					int _size = _c[id_4].size;
@@ -231,37 +231,37 @@ void analyse_log(ACL_rules* data)
 			switch ((unsigned int)p->protocol[1])
 			{
 			case TCP:
-				c_id[0] = 0;
+				c_id[PROTO_LAYER] = 0;
 				break;
 			case ICMP:
-				c_id[0] = 1;
+				c_id[PROTO_LAYER] = 1;
 				break;
 			case UDP:
-				c_id[0] = 2;
+				c_id[PROTO_LAYER] = 2;
 				break;
 			default:
 				fprintf(stderr, "Rule %d Error - unknown message protocol %u !\n", p->PRI, p->protocol[1]);
-				c_id[0] = PROTO_END_CELL;
+				return;
 			}
 		}
 		switch (s_mask)
 		{
 		case 0:
-			c_id[1] = IP_EDN_CELL_1;
-			c_id[2] = IP_EDN_CELL_2;
+			c_id[IP_LAYER_1] = IP_EDN_CELL_1;
+			c_id[IP_LAYER_2] = IP_EDN_CELL_2;
 			break;
 		case 1:
-			c_id[1] = p->source_ip[3] >> IP_WIDTH_1;
-			c_id[2] = IP_EDN_CELL_2;
+			c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
+			c_id[IP_LAYER_2] = IP_EDN_CELL_2;
 			break;
 		default:
-			c_id[1] = p->source_ip[3] >> IP_WIDTH_1;
-			c_id[2] = p->source_ip[2] >> IP_WIDTH_2;
+			c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
+			c_id[IP_LAYER_2] = p->source_ip[2] >> IP_WIDTH_2;
 			break;
 		}
 		if (p->destination_port[0] == p->destination_port[1])c_id[3] = p->destination_port[0] >> PORT_WIDTH;
-		else if (p->destination_port[0] >> PORT_WIDTH == p->destination_port[1] >> PORT_WIDTH)c_id[3] = p->destination_port[0] >> PORT_WIDTH;
-		else c_id[3] = PORT_END_CELL;
+		else if (p->destination_port[0] >> PORT_WIDTH == p->destination_port[1] >> PORT_WIDTH)c_id[PORT_LAYER] = p->destination_port[0] >> PORT_WIDTH;
+		else c_id[PORT_LAYER] = PORT_END_CELL;
 
 		for (int j = 0; j < LEVEL; j++) {
 			_log[j][c_id[j]]++;
