@@ -145,6 +145,14 @@ int match_with_log(Cell* c_list, message* m, int *_cycle)
 	ed_port = p->destination_port;
 
 	unsigned int c_id[LEVEL][2];
+	
+	c_id[PROTO_LAYER][1] = PROTO_END_CELL;
+	c_id[IP_LAYER_1][0] = p->source_ip[3] >> IP_WIDTH_1;
+	c_id[IP_LAYER_1][1] = IP_EDN_CELL_1;
+	c_id[IP_LAYER_2][0] = p->source_ip[2] >> IP_WIDTH_2;
+	c_id[IP_LAYER_2][1] = IP_EDN_CELL_2;
+	c_id[PORT_LAYER][0] = p->destination_port >> PORT_WIDTH;
+	c_id[PORT_LAYER][1] = PORT_END_CELL;
 	switch ((unsigned int)p->protocol)
 	{
 	case TCP:
@@ -161,15 +169,9 @@ int match_with_log(Cell* c_list, message* m, int *_cycle)
 		c_id[PROTO_LAYER][0] = PROTO_END_CELL;
 		break;
 	}
-	c_id[PROTO_LAYER][1] = PROTO_END_CELL;
-	c_id[IP_LAYER_1][0] = p->source_ip[3] >> IP_WIDTH_1;
-	c_id[IP_LAYER_1][1] = IP_EDN_CELL_1;
-	c_id[IP_LAYER_2][0] = p->source_ip[2] >> IP_WIDTH_2;
-	c_id[IP_LAYER_2][1] = IP_EDN_CELL_2;
-	c_id[PORT_LAYER][0] = p->destination_port >> PORT_WIDTH;
-	c_id[PORT_LAYER][1] = PORT_END_CELL;
 
 	int res = 0x7FFFFFFF;
+	
 	for (int i = 0; i < 2; i++) {
 		int id_1 = c_id[0][i] * LAYER_1;
 		for (int j = 0; j < 2; j++) {
@@ -177,13 +179,16 @@ int match_with_log(Cell* c_list, message* m, int *_cycle)
 			for (int v = 0; v < 2; v++) {
 				int id_3 = (id_2 + c_id[2][v]) * LAYER_3;
 				for (int w = 0; w < 2; w++) {
-					int id_4 = id_3 + c_id[3][w];
-					int _size = _c[id_4].size;
+					//int id_4 = id_3 + c_id[3][w];
+					Cell* q = _c + id_3 + c_id[3][w];
+					//int _size = _c[id_4].size;
+					int _size = q->size;
 					if (_size == 0)continue;
-					data* _list = _c[id_4].list;
+					//data* _list = _c[id_4].list;
+					data* _d = q->list - 1;
 					unsigned int _ip;
 					for (int u = 0; u < _size; u++) { //check in cell
-						data* _d = _list + u;
+						++_d;
 						if (res < _d->PRI)break;
 						unsigned int m_bit = 32 - (unsigned int)_d->source_mask;  //comput the bit number need to move
 						memcpy(&_ip, _d->source_ip, 4);

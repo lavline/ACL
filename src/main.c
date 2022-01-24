@@ -11,11 +11,11 @@ int main() {
 
 	for (int i = 0; i < datasets.size; i++)
 		insert(index, datasets.list + i);
-	
+	/*
 	printf("%f MB\n", get_memory(index));
 	analyse_log(&datasets);
 	get_cell_size(index);
-	
+	*/
 
 	int res = 0;
 	int cycle = 0;
