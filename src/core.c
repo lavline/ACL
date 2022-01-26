@@ -10,7 +10,8 @@ void insert(Cell* c_list, rule* r)
 	_d.destination_mask = (unsigned short)p->destination_mask;
 
 	unsigned int s_mask = (unsigned int)(p->source_mask >> 3);
-	if ((unsigned int)p->protocol[0] == 0)c_id[0] = PROTO_END_CELL;
+
+	if ((unsigned int)p->protocol[0] == 0)c_id[PROTO_LAYER] = PROTO_END_CELL;
 	else {
 		switch ((unsigned int)p->protocol[1])
 		{
@@ -69,6 +70,7 @@ int match(Cell* c_list, message* m)
 	ed_port = p->destination_port;
 
 	unsigned int c_id[LEVEL][2];
+
 	switch ((unsigned int)p->protocol)
 	{
 	case TCP:
@@ -189,6 +191,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle)
 					unsigned int _ip;
 					for (int u = 0; u < _size; u++) { //check in cell
 						++_d;
+						//__builtin_prefetch(_d + 4, 0);
 						if (res < _d->PRI)break;
 						unsigned int m_bit = 32 - (unsigned int)_d->source_mask;  //comput the bit number need to move
 						memcpy(&_ip, _d->source_ip, 4);
@@ -235,7 +238,7 @@ void analyse_log(ACL_rules* data)
 		unsigned int c_id[LEVEL]; //index cell id
 		unsigned int s_mask = (unsigned int)(p->source_mask >> 3);
 
-		if ((unsigned int)p->protocol[0] == 0)c_id[0] = PROTO_END_CELL;
+		if ((unsigned int)p->protocol[0] == 0)c_id[PROTO_LAYER] = PROTO_END_CELL;
 		else {
 			switch ((unsigned int)p->protocol[1])
 			{
@@ -294,7 +297,7 @@ double get_memory(Cell* c_list)
 	for (int i = 0; i < CELL_SIZE; i++) {
 		mem = mem + (c_list + i)->capacity * sizeof(data);
 	}
-	printf("%u B\n", mem);
+	printf("%lu B\n", mem);
 	double res = (double)mem / 1024.0 / 1024.0;
 	return res;
 }
