@@ -4,7 +4,7 @@
 
 typedef struct rule {
 	int PRI;  //priority
-	unsigned char protocol[2];
+	unsigned char protocol[2];  // [0] : mask [1] : protocol
 	unsigned char source_mask;
 	unsigned char destination_mask;
 	unsigned char source_ip[4];
@@ -23,8 +23,9 @@ typedef struct ACL_rules
 typedef struct data
 {
 	int PRI;  //priority
-	unsigned short source_mask;
-	unsigned short destination_mask;
+	unsigned char protocol[2];
+	unsigned char source_mask;
+	unsigned char destination_mask;
 	unsigned char source_ip[4];
 	unsigned char destination_ip[4];
 	unsigned short source_port[2];
