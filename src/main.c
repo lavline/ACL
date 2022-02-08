@@ -9,14 +9,14 @@ int main() {
 	read_rules("/home/lzhy/ACL_dataset/fw4_256k.txt", &datasets);
 	read_messages("/home/lzhy/ACL_dataset/fw4_256k_trace.txt", &message_sets);
 
-	for (int i = 0; i < datasets.size; i++) {
-		insert(index, datasets.list + i);
-	}
+	//for (int i = 0; i < datasets.size; i++) {
+	//	insert(index, datasets.list + i);
+	//}
 
 	analyse_log(&datasets);
-	get_cell_size(index);
-	printf("%f MB\n", get_memory(index));
-	
+	//get_cell_size(index);
+	//printf("%f MB\n", get_memory(index));
+	/*
 	int res = 0;
 	int cycle = 0;
 	int *match_log;
@@ -31,12 +31,12 @@ int main() {
 	}
 
 	fclose(res_fp);
-	
+	*/
 	for (int i = 0; i < CELL_SIZE; i++)free(index[i].list);
-	free(index);
-	free(message_sets.list);
-	free(datasets.list);
-	free(match_log);
+	free(index);  // free cell
+	free(message_sets.list); // free message
+	free(datasets.list);  // free dataset
+	//free(match_log);  // free log
 	return 0;
 }
 

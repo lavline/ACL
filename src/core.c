@@ -37,8 +37,8 @@ void insert(Cell* c_list, rule* r)
 		c_id[IP_LAYER_2] = IP_EDN_CELL_2;
 		break;
 	case 1:
-		c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
-		c_id[IP_LAYER_2] = IP_EDN_CELL_2;
+		c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;  // source ip first byte
+		c_id[IP_LAYER_2] = IP_EDN_CELL_2;  // source ip second byte
 		break;
 	default:
 		c_id[IP_LAYER_1] = p->source_ip[3] >> IP_WIDTH_1;
