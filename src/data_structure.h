@@ -55,4 +55,21 @@ typedef struct ACL_messages
 	message* list;
 }ACL_messages;
 
+typedef struct LogInCell
+{
+	int id;
+	int layer[4];
+	int size;
+	int rules;
+	int ele;
+	int match;
+}LogInCell;
+
+typedef struct MatchLog
+{
+	int rules;
+	int ele;
+	LogInCell* list;
+}MatchLog;
+
 #endif //__DATA_STRUCTURE_H_

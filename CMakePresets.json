@@ -17,21 +17,6 @@
       }
     },
     {
-      "name": "macos-default",
-      "displayName": "macOS Debug",
-      "description": "Target a remote macOS system with Ninja",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "macOS" ] },
-        "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": { "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}" }
-      }
-    },
-    {
       "name": "windows-default",
       "displayName": "Windows x64 Debug",
       "description": "面向具有 Visual Studio 开发环境的 Windows。",
@@ -46,6 +31,22 @@
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
       },
       "vendor": { "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] } }
+    }
+    ,
+    {
+      "name": "macos-default",
+      "displayName": "macOS Debug",
+      "description": "Target a remote macOS system with Ninja",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "macOS" ] },
+        "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": { "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}" }
+      }
     }
   ]
 }

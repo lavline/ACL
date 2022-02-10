@@ -39,7 +39,7 @@ void read_messages(const char* file_name, ACL_messages* messages)
 	fp = fopen(file_name, "r");
 	message _m = { 0 };
 	unsigned int ip_src, ip_des;
-	while (fscanf(fp, "%u\t%u\t%u\t%u\t%u\t%*u\t%*d\n", &ip_src, &ip_des, &_m.source_port, &_m.destination_port, &_m.protocol) != EOF) {
+	while (fscanf(fp, "%u\t%u\t%hu\t%hu\t%u\t%*u\t%*d\n", &ip_src, &ip_des, &_m.source_port, &_m.destination_port, &_m.protocol) != EOF) {
 		memcpy(_m.source_ip, &ip_src, 4);
 		memcpy(_m.destination_ip, &ip_des, 4);
 		//printf("%u\t%u\t%u\t%u\t%u\n", ip_src, ip_des, _m.source_port, _m.destination_port, _m.protocol);

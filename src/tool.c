@@ -59,7 +59,7 @@ void add_message(ACL_messages* messages, message* m)
 	}
 }
 
-uint64_t inline GetCPUCycle()
+inline uint64_t GetCPUCycle()
 {
 #ifdef __x86_64__
 	unsigned int lo, hi;
