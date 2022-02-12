@@ -111,7 +111,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 	for (int num = 0; num < 100; num++) {
 #if ENABLE_LOG
 		log->rules = log->ele = 0;
-		memset(log->list, 0, 16 * sizeof(LogInCell));
+		memset(log->list, 0, (1 << LEVEL) * sizeof(LogInCell));
 #endif
 		e_protocol = p->protocol;
 		memcpy(&es_ip, p->source_ip, 4);
@@ -191,83 +191,114 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 			for (int j = 0; j < 2; j++) {
 				int id_2 = (id_1 + c_id[1][j]) * LAYER_2;
 				for (int v = 0; v < 2; v++) {
+#if LEVEL == 3
+					Cell* q = _c + id_2 + c_id[2][v];
+#endif
+#if LAYER_3
 					int id_3 = (id_2 + c_id[2][v]) * LAYER_3;
-					for (int w = 0; w < 2; w++) {
-						Cell* q = _c + id_3 + c_id[3][w];
-						int _size = q->size;
-
+					for (int k = 0; k < 2; k++) {
+#endif
+#if LEVEL == 4
+						Cell* q = _c + id_3 + c_id[3][k];
+#endif
+#if LAYER_4
+						int id_4 = (id_3 + c_id[3][k]) * LAYER_4;
+						for (int w = 0; w < 2; w++) {
+							Cell* q = _c + id_4 + c_id[4][w];
+#endif
+							int _size = q->size;
 #if ENABLE_LOG
-						cell_num++;
-						log->list[cell_num].id = id_3 + c_id[3][w];
-						log->list[cell_num].size = _size;
-						log->list[cell_num].layer[0] = c_id[0][i];
-						log->list[cell_num].layer[1] = c_id[1][j];
-						log->list[cell_num].layer[2] = c_id[2][v];
-						log->list[cell_num].layer[3] = c_id[3][w];
+							cell_num++;
+#if LEVEL == 3
+							log->list[cell_num].id = id_2 + c_id[2][v];
+#endif
+#if LEVEL == 4
+							log->list[cell_num].id = id_3 + c_id[3][k];
+#endif
+#if LEVEL == 5
+							log->list[cell_num].id = id_4 + c_id[4][w];
+#endif
+							log->list[cell_num].size = _size;
+							log->list[cell_num].layer[0] = c_id[0][i];
+							log->list[cell_num].layer[1] = c_id[1][j];
+							log->list[cell_num].layer[2] = c_id[2][v];
+#if LAYER_3
+							log->list[cell_num].layer[3] = c_id[3][k];
+#endif
+#if LAYER_4
+
+							log->list[cell_num].layer[4] = c_id[4][w];
+#endif
+							if(_size)log->list[cell_num].HPRI = q->list[0].PRI;
 #endif
 
-						if (_size == 0)continue;
-						data* _d = q->list - 1;
-						unsigned int _ip;
-						for (int u = 0; u < _size; u++) { //check in cell
-							++_d;
+							if (_size == 0)continue;
+							data* _d = q->list - 1;
+							unsigned int _ip;
+							for (int u = 0; u < _size; u++) { //check in cell
+								++_d;
 
 #if ENABLE_LOG
-							log->rules++;
-							log->list[cell_num].rules++;
-							//__builtin_prefetch(_d + 4, 0);
-							log->ele++;
-							log->list[cell_num].ele++;
+								log->rules++;
+								log->list[cell_num].rules++;
+								//__builtin_prefetch(_d + 4, 0);
+								log->ele++;
+								log->list[cell_num].ele++;
 #endif
 
-							if (res < _d->PRI)break; // check priority
+								if (res < _d->PRI)break; // check priority
 
 #if ENABLE_LOG
-							log->ele++;
-							log->list[cell_num].ele++;
+								log->ele++;
+								log->list[cell_num].ele++;
 #endif
 
-							if (e_protocol != _d->protocol[1] && _d->protocol[0] != 0)continue; // check protocol
+								if (e_protocol != _d->protocol[1] && _d->protocol[0] != 0)continue; // check protocol
 
 #if ENABLE_LOG
-							log->ele++;
-							log->list[cell_num].ele++;
+								log->ele++;
+								log->list[cell_num].ele++;
 #endif
 
-							unsigned int m_bit = 32 - (unsigned int)_d->destination_mask;  // comput the bit number need to move
-							memcpy(&_ip, _d->destination_ip, 4);
-							if (m_bit != 32 && ed_ip >> m_bit != _ip >> m_bit)continue;  // if destination ip not match, check next
+								unsigned int m_bit = 32 - (unsigned int)_d->destination_mask;  // comput the bit number need to move
+								memcpy(&_ip, _d->destination_ip, 4);
+								if (m_bit != 32 && ed_ip >> m_bit != _ip >> m_bit)continue;  // if destination ip not match, check next
 
 #if ENABLE_LOG
-							log->ele++;
-							log->list[cell_num].ele++;
+								log->ele++;
+								log->list[cell_num].ele++;
 #endif
 
-							m_bit = 32 - (unsigned int)_d->source_mask;  // comput the bit number need to move
-							memcpy(&_ip, _d->source_ip, 4);
-							if (m_bit != 32 && es_ip >> m_bit != _ip >> m_bit)continue;  // if source ip not match, check next
+								m_bit = 32 - (unsigned int)_d->source_mask;  // comput the bit number need to move
+								memcpy(&_ip, _d->source_ip, 4);
+								if (m_bit != 32 && es_ip >> m_bit != _ip >> m_bit)continue;  // if source ip not match, check next
 
 #if ENABLE_LOG
-							log->ele++;
-							log->list[cell_num].ele++;
+								log->ele++;
+								log->list[cell_num].ele++;
 #endif
 
-							if (ed_port < _d->destination_port[0] || _d->destination_port[1] < ed_port)continue;  // if destination port not match, check next
+								if (ed_port < _d->destination_port[0] || _d->destination_port[1] < ed_port)continue;  // if destination port not match, check next
 
 #if ENABLE_LOG
-							log->ele++;
-							log->list[cell_num].ele++;
+								log->ele++;
+								log->list[cell_num].ele++;
 #endif
 
-							if (es_port < _d->source_port[0] || _d->source_port[1] < es_port)continue;  // if source port not match, check next
+								if (es_port < _d->source_port[0] || _d->source_port[1] < es_port)continue;  // if source port not match, check next
 
-							res = _d->PRI;
+								res = _d->PRI;
 #if ENABLE_LOG
-							log->list[cell_num].match = res;
+								log->list[cell_num].match = res;
 #endif
-							break;
+								break;
+							}
+#if LAYER_4
 						}
+#endif
+#if LAYER_3
 					}
+#endif
 				}
 			}
 		}

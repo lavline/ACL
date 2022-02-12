@@ -15,8 +15,8 @@ typedef struct rule {
 
 typedef struct ACL_rules
 {
-	int size;
-	int capacity;
+	unsigned int size;
+	unsigned int capacity;
 	rule* list;
 }ACL_rules;
 
@@ -34,8 +34,8 @@ typedef struct data
 
 typedef struct Cell
 {
-	int size;
-	int capacity;
+	unsigned int size;
+	unsigned int capacity;
 	data* list;
 }Cell;
 
@@ -50,19 +50,20 @@ typedef struct message
 
 typedef struct ACL_messages
 {
-	int size;
-	int capacity;
+	unsigned int size;
+	unsigned int capacity;
 	message* list;
 }ACL_messages;
 
 typedef struct LogInCell
 {
 	int id;
-	int layer[4];
+	int layer[5];
 	int size;
 	int rules;
 	int ele;
 	int match;
+	int HPRI;
 }LogInCell;
 
 typedef struct MatchLog
