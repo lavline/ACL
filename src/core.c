@@ -440,6 +440,6 @@ double get_memory(Cell* c_list)
 		mem = mem + (c_list + i)->capacity * sizeof(data);
 	}
 	printf("%lu B\n", mem);
-	double res = (double)mem / 1024.0 / 1024.0;
+	double res = (double)mem / 1048576.0;
 	return res;
 }
