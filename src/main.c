@@ -3,40 +3,7 @@
 
 int main() {
 
-#if PROTO
-	printf("protocol %d\n", PROTO_LAYER);
-#endif
-#if SIP_1
-	printf("s_ip_1 %d %d %d %d\n", SIP_1_LAYER, SIP_SIZE_1, SIP_EDN_CELL_1, SIP_WIDTH_1);
-#endif
-#if SIP_2
-	printf("s_ip_2 %d %d %d %d\n", SIP_2_LAYER, SIP_SIZE_2, SIP_EDN_CELL_2, SIP_WIDTH_2);
-#endif
-#if SIP_3
-	printf("s_ip_3 %d %d %d %d\n", SIP_3_LAYER, SIP_SIZE_3, SIP_EDN_CELL_3, SIP_WIDTH_3);
-#endif
-#if SIP_4
-	printf("s_ip_4 %d\n", SIP_4_LAYER);
-#endif
-#if DIP_1
-	printf("d_ip_1 %d %d %d %d\n", DIP_1_LAYER, DIP_SIZE_1, DIP_EDN_CELL_1, DIP_WIDTH_1);
-#endif
-#if DIP_2
-	printf("d_ip_2 %d %d %d %d\n", DIP_2_LAYER, DIP_SIZE_2, DIP_EDN_CELL_2, DIP_WIDTH_2);
-#endif
-#if DIP_3
-	printf("d_ip_3 %d %d %d %d\n", DIP_3_LAYER, DIP_SIZE_3, DIP_EDN_CELL_3, DIP_WIDTH_3);
-#endif
-#if DIP_4
-	printf("d_ip_4 %d %d %d %d\n", DIP_4_LAYER, DIP_SIZE_4, DIP_EDN_CELL_4, DIP_WIDTH_4);
-#endif
-#if SPORT
-	printf("s_port %d %d %d %d\n", SPORT_LAYER, SPORT_SIZE, SPORT_END_CELL, SPORT_WIDTH);
-#endif
-#if DPORT
-	printf("d_port %d %d %d %d\n", DPORT_LAYER, DPORT_SIZE, DPORT_END_CELL, DPORT_WIDTH);
-#endif
-	printf("%d %d %d %d\n", LAYER_0, LAYER_1, LAYER_2, LAYER_3);
+	if (!check_configure())return -1;
 
 	ACL_rules datasets = { 0,0,0 };
 	ACL_messages message_sets = { 0,0,0 };

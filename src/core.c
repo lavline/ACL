@@ -75,12 +75,19 @@ void insert(Cell* c_list, rule* r)
 	else c_id[DPORT_LAYER] = DPORT_END_CELL;
 #endif
 
-	int id = ((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3];
+	//int id = ((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3];
 	//printf("%d %d\n", p->PRI, id);
 	//for(int i=0;i<LEVEL;i++)printf("%d ", c_id[i]);
 	//printf("\n");
-
+#if LEVEL == 3
+	add_data(c_list + ((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]), &_d);
+#endif
+#if LEVEL == 4
 	add_data(c_list + (((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3]), &_d);
+#endif
+#if LEVEL == 5
+	add_data(c_list + (((((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3]) * LAYER_4) + c_id[4]), &_d);
+#endif
 }
 
 
@@ -273,7 +280,6 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 
 	*_cycle = time_2 - time_1;
 	//printf("matching instruction cycle : %d\n", instruction_cycle);
-
 	return res;
 }
 
@@ -442,4 +448,147 @@ double get_memory(Cell* c_list)
 	printf("%lu B\n", mem);
 	double res = (double)mem / 1048576.0;
 	return res;
+}
+
+int check_layer_configure(int id, int size, int eid, int width, int *layer, int *check_layer, int domain) {
+	int check_setting = 1;
+	//检查该层id设置是否超过层数
+	if (id >= LEVEL) {
+		fprintf(stderr, "    |-error- [layer_id] need less than [LEVEL] number %d !\n", LEVEL);
+		check_setting = 0;
+	}
+	//检查该层id是否已被使用
+	if (!check_layer[id])check_layer[id] = 1;
+	else {
+		fprintf(stderr, "    |-error- [layer_id] has been used by others !\n");
+		check_setting = 0;
+	}
+	//检查size和end_cell设置是否正确
+	if (size != eid + 1) {
+		fprintf(stderr, "    |-error- [end_id] is not equal to [size - 1] !\n");
+		check_setting = 0;
+	}
+	//检查width设置是否正确
+	if ((size - 1) * (1 << width) != domain) {
+		fprintf(stderr, "    |-error- [width] does not match [layer_size] !\n");
+		check_setting = 0;
+	}
+	//检查 LAYER size 设置和该层 size 设置是否相符
+	if (layer[id] != size) {
+		fprintf(stderr, "    |-error- [LAYER_%d] error! Make sure it is equal to [layer_size].\n", id);
+		check_setting = 0;
+	}
+	return check_setting;
+}
+
+int check_configure()
+{
+	int layer[5];
+	int check_layer[5] = { 0 };
+	int check_setting = 1;
+	int enable_layer = 0;
+	int cell_num = LAYER_0 * LAYER_1 * LAYER_2;
+	layer[0] = LAYER_0; layer[1] = LAYER_1; layer[2] = LAYER_2;
+	printf("[LAYER_0] %d [LAYER_1] %d [LAYER_2] %d ", LAYER_0, LAYER_1, LAYER_2);
+#if LAYER_3
+	if (LEVEL < 4) {
+		fprintf(stderr, "-error- [LEVEL] is %d, but [LAYER_3] is not set to 0!\n", LEVEL);
+		check_setting = 0;
+	}
+	layer[3] = LAYER_3;
+	cell_num *= LAYER_3;
+	printf("[LAYER_3] %d ", LAYER_3);
+#endif
+#if LAYER_4
+	if (LEVEL < 5) {
+		fprintf(stderr, "-error- [LEVEL] is %d, but [LAYER_4] is not set to 0!\n", LEVEL);
+		check_setting = 0;
+	}
+	layer[4] = LAYER_4;
+	cell_num *= LAYER_4;
+	printf("[LAYER_4] %d ", LAYER_4);
+#endif
+	printf("\n**********************************************************************\n");
+
+#if PROTO
+	enable_layer++;
+	printf("--Proto--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d\n", PROTO_LAYER, PROTO_SIZE, PROTO_END_CELL);
+	if (PROTO_LAYER >= LEVEL) {
+		fprintf(stderr, "    |-error- [layer_id] larger than [LEVEL %d] !\n", LEVEL);
+		check_setting = 0;
+	}
+	if (!check_layer[PROTO_LAYER])check_layer[PROTO_LAYER] = 1;
+	else {
+		fprintf(stderr, "    |-error- [layer_id] has been used by others !\n");
+		check_setting = 0;
+	}
+	if (PROTO_SIZE != PROTO_END_CELL + 1) {
+		fprintf(stderr, "    |-error- [end_id] is not equal to [size - 1] !\n");
+		check_setting = 0;
+	}
+	if (layer[PROTO_LAYER] != PROTO_SIZE) {
+		fprintf(stderr, "    |-error- [LAYER_%d] error ! Make sure it is equal to [layer_size].\n", PROTO_LAYER);
+		check_setting = 0;
+	}
+#endif
+#if SIP_1
+	enable_layer++;
+	printf("--Sip_1--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SIP_1_LAYER, SIP_SIZE_1, SIP_EDN_CELL_1, SIP_WIDTH_1);
+	check_setting = check_layer_configure(SIP_1_LAYER, SIP_SIZE_1, SIP_EDN_CELL_1, SIP_WIDTH_1, layer, check_layer, 256);
+#endif
+#if SIP_2
+	enable_layer++;
+	printf("--Sip_2--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SIP_2_LAYER, SIP_SIZE_2, SIP_EDN_CELL_2, SIP_WIDTH_2);
+	check_setting = check_layer_configure(SIP_2_LAYER, SIP_SIZE_2, SIP_EDN_CELL_2, SIP_WIDTH_2, layer, check_layer, 256);
+#endif
+#if SIP_3
+	enable_layer++;
+	printf("--Sip_3--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SIP_3_LAYER, SIP_SIZE_3, SIP_EDN_CELL_3, SIP_WIDTH_3);
+	check_setting = check_layer_configure(SIP_3_LAYER, SIP_SIZE_3, SIP_EDN_CELL_3, SIP_WIDTH_3, layer, check_layer, 256);
+#endif
+#if SIP_4
+	enable_layer++;
+	printf("--Sip_4--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SIP_4_LAYER, SIP_SIZE_4, SIP_EDN_CELL_4, SIP_WIDTH_4);
+	check_setting = check_layer_configure(SIP_4_LAYER, SIP_SIZE_4, SIP_EDN_CELL_4, SIP_WIDTH_4, layer, check_layer, 256);
+#endif
+#if DIP_1
+	enable_layer++;
+	printf("--Dip_1--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DIP_1_LAYER, DIP_SIZE_1, DIP_EDN_CELL_1, DIP_WIDTH_1);
+	check_setting = check_layer_configure(DIP_1_LAYER, DIP_SIZE_1, DIP_EDN_CELL_1, DIP_WIDTH_1, layer, check_layer, 256);
+#endif
+#if DIP_2
+	enable_layer++;
+	printf("--Dip_2--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DIP_2_LAYER, DIP_SIZE_2, DIP_EDN_CELL_2, DIP_WIDTH_2);
+	check_setting = check_layer_configure(DIP_2_LAYER, DIP_SIZE_2, DIP_EDN_CELL_2, DIP_WIDTH_2, layer, check_layer, 256);
+#endif
+#if DIP_3
+	enable_layer++;
+	printf("--Dip_3--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DIP_3_LAYER, DIP_SIZE_3, DIP_EDN_CELL_3, DIP_WIDTH_3);
+	check_setting = check_layer_configure(DIP_3_LAYER, DIP_SIZE_3, DIP_EDN_CELL_3, DIP_WIDTH_3, layer, check_layer, 256);
+#endif
+#if DIP_4
+	enable_layer++;
+	printf("--Dip_4--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DIP_4_LAYER, DIP_SIZE_4, DIP_EDN_CELL_4, DIP_WIDTH_4);
+	check_setting = check_layer_configure(DIP_4_LAYER, DIP_SIZE_4, DIP_EDN_CELL_4, DIP_WIDTH_4, layer, check_layer, 256);
+#endif
+#if SPORT
+	enable_layer++;
+	printf("--Sport--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SPORT_LAYER, SPORT_SIZE, SPORT_END_CELL, SPORT_WIDTH);
+	check_setting = check_layer_configure(SPORT_LAYER, SPORT_SIZE, SPORT_END_CELL, SPORT_WIDTH, layer, check_layer, 65536);
+#endif
+#if DPORT
+	enable_layer++;
+	printf("--Dport--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DPORT_LAYER, DPORT_SIZE, DPORT_END_CELL, DPORT_WIDTH);
+	check_setting = check_layer_configure(DPORT_LAYER, DPORT_SIZE, DPORT_END_CELL, DPORT_WIDTH, layer, check_layer, 65536);
+#endif
+	printf("**********************************************************************\n");
+	if (enable_layer != LEVEL) {
+		fprintf(stderr, "-error- [LEVEL] error! You set %d layer, but you have using %d layer.\n", LEVEL, enable_layer);
+		check_setting = 0;
+	}
+	if (cell_num != CELL_SIZE) {
+		fprintf(stderr, "-error- [CELL_SIZE] error! Make sure it matches the layer setting %d.\n", cell_num);
+		check_setting = 0;
+	}
+	return check_setting;
 }
