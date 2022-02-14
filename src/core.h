@@ -9,8 +9,8 @@
 
 #define PROTO 1  // if equal to 1 using this att to index
 #define PROTO_LAYER 4  //  if this att is enabled, this refers to the layer
-#define PROTO_SIZE 4  // protocol layer cell number
-#define PROTO_END_CELL 3  // protocol layer cell end id
+#define PROTO_SIZE 5  // protocol layer cell number
+#define PROTO_END_CELL 4  // protocol layer cell end id
 
 #define SIP_1 1
 #define SIP_1_LAYER 0
@@ -76,9 +76,9 @@
 #define LAYER_1 33
 #define LAYER_2 33
 #define LAYER_3 17
-#define LAYER_4 4
+#define LAYER_4 5
 
-#define CELL_SIZE 4813380
+#define CELL_SIZE 6016725
 
 #define TCP 0x06
 #define ICMP 0x01
@@ -94,5 +94,6 @@ void analyse_log(ACL_rules* data);
 double get_memory(Cell* c_list);
 int check_layer_configure(int id, int size, int eid, int width, int* layer, int* check_layer, int domain);
 int check_configure();
+void check_indexCell(Cell* index);
 
 #endif // !__CORE_H_

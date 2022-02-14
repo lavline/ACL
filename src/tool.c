@@ -19,13 +19,11 @@ void add_rule(ACL_rules* rules, rule* r) {
 	}
 }
 
+// 按优先级有序插入
 void add_data(Cell* c, data* d)
 {
-	if (c->size < c->capacity) {
-		memcpy(c->list + c->size, d, sizeof(data));
-		c->size++;
-	}
-	else {
+	// 扩容
+	if (c->capacity <= c->size) {
 		c->capacity += 8;
 		data* p = (data*)realloc(c->list, c->capacity * sizeof(data));
 		if (p == NULL) {
@@ -33,9 +31,19 @@ void add_data(Cell* c, data* d)
 		}
 		else {
 			c->list = p;
-			memcpy(c->list + c->size, d, sizeof(data));
-			c->size++;
 		}
+	}
+	// 按优先级有序插入
+	if (c->list != NULL) { 
+		int i = 0;
+		for (i; i < c->size; i++) {
+			if (c->list[i].PRI > d->PRI)break;
+		}
+		if (i < c->size) {
+			memmove(c->list + i + 1, c->list + i, (c->size - i) * sizeof(data));
+		}
+		memcpy(c->list + i, d, sizeof(data));
+		c->size++;
 	}
 }
 

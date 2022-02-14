@@ -29,7 +29,7 @@ void insert(Cell* c_list, rule* r)
 			c_id[PROTO_LAYER] = 2;
 			break;
 		default:
-			c_id[PROTO_LAYER] = PROTO_END_CELL;
+			c_id[PROTO_LAYER] = 3;
 			break;
 		}
 	}
@@ -134,7 +134,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 			c_id[PROTO_LAYER][0] = 2;
 			break;
 		default:
-			c_id[PROTO_LAYER][0] = PROTO_END_CELL;
+			c_id[PROTO_LAYER][0] = 3;
 			break;
 		}
 		c_id[PROTO_LAYER][1] = PROTO_END_CELL;
@@ -565,61 +565,75 @@ int check_configure()
 #if SIP_1
 	enable_layer++;
 	printf("--Sip_1--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SIP_1_LAYER, SIP_SIZE_1, SIP_EDN_CELL_1, SIP_WIDTH_1);
-	check_setting = check_layer_configure(SIP_1_LAYER, SIP_SIZE_1, SIP_EDN_CELL_1, SIP_WIDTH_1, layer, check_layer, 256);
+	if (!check_layer_configure(SIP_1_LAYER, SIP_SIZE_1, SIP_EDN_CELL_1, SIP_WIDTH_1, layer, check_layer, 256))check_setting = 0;
 #endif
 #if SIP_2
 	enable_layer++;
 	printf("--Sip_2--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SIP_2_LAYER, SIP_SIZE_2, SIP_EDN_CELL_2, SIP_WIDTH_2);
-	check_setting = check_layer_configure(SIP_2_LAYER, SIP_SIZE_2, SIP_EDN_CELL_2, SIP_WIDTH_2, layer, check_layer, 256);
+	if (!check_layer_configure(SIP_2_LAYER, SIP_SIZE_2, SIP_EDN_CELL_2, SIP_WIDTH_2, layer, check_layer, 256))check_setting = 0;
 #endif
 #if SIP_3
 	enable_layer++;
 	printf("--Sip_3--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SIP_3_LAYER, SIP_SIZE_3, SIP_EDN_CELL_3, SIP_WIDTH_3);
-	check_setting = check_layer_configure(SIP_3_LAYER, SIP_SIZE_3, SIP_EDN_CELL_3, SIP_WIDTH_3, layer, check_layer, 256);
+	if (!check_layer_configure(SIP_3_LAYER, SIP_SIZE_3, SIP_EDN_CELL_3, SIP_WIDTH_3, layer, check_layer, 256))check_setting = 0;
 #endif
 #if SIP_4
 	enable_layer++;
 	printf("--Sip_4--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SIP_4_LAYER, SIP_SIZE_4, SIP_EDN_CELL_4, SIP_WIDTH_4);
-	check_setting = check_layer_configure(SIP_4_LAYER, SIP_SIZE_4, SIP_EDN_CELL_4, SIP_WIDTH_4, layer, check_layer, 256);
+	if (!check_layer_configure(SIP_4_LAYER, SIP_SIZE_4, SIP_EDN_CELL_4, SIP_WIDTH_4, layer, check_layer, 256))check_setting = 0;
 #endif
 #if DIP_1
 	enable_layer++;
 	printf("--Dip_1--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DIP_1_LAYER, DIP_SIZE_1, DIP_EDN_CELL_1, DIP_WIDTH_1);
-	check_setting = check_layer_configure(DIP_1_LAYER, DIP_SIZE_1, DIP_EDN_CELL_1, DIP_WIDTH_1, layer, check_layer, 256);
+	if (!check_layer_configure(DIP_1_LAYER, DIP_SIZE_1, DIP_EDN_CELL_1, DIP_WIDTH_1, layer, check_layer, 256))check_setting = 0;
 #endif
 #if DIP_2
 	enable_layer++;
 	printf("--Dip_2--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DIP_2_LAYER, DIP_SIZE_2, DIP_EDN_CELL_2, DIP_WIDTH_2);
-	check_setting = check_layer_configure(DIP_2_LAYER, DIP_SIZE_2, DIP_EDN_CELL_2, DIP_WIDTH_2, layer, check_layer, 256);
+	if (!check_layer_configure(DIP_2_LAYER, DIP_SIZE_2, DIP_EDN_CELL_2, DIP_WIDTH_2, layer, check_layer, 256))check_setting = 0;
 #endif
 #if DIP_3
 	enable_layer++;
 	printf("--Dip_3--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DIP_3_LAYER, DIP_SIZE_3, DIP_EDN_CELL_3, DIP_WIDTH_3);
-	check_setting = check_layer_configure(DIP_3_LAYER, DIP_SIZE_3, DIP_EDN_CELL_3, DIP_WIDTH_3, layer, check_layer, 256);
+	if (!check_layer_configure(DIP_3_LAYER, DIP_SIZE_3, DIP_EDN_CELL_3, DIP_WIDTH_3, layer, check_layer, 256))check_setting = 0;
 #endif
 #if DIP_4
 	enable_layer++;
 	printf("--Dip_4--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DIP_4_LAYER, DIP_SIZE_4, DIP_EDN_CELL_4, DIP_WIDTH_4);
-	check_setting = check_layer_configure(DIP_4_LAYER, DIP_SIZE_4, DIP_EDN_CELL_4, DIP_WIDTH_4, layer, check_layer, 256);
+	if (!check_layer_configure(DIP_4_LAYER, DIP_SIZE_4, DIP_EDN_CELL_4, DIP_WIDTH_4, layer, check_layer, 256))check_setting = 0;
 #endif
 #if SPORT
 	enable_layer++;
 	printf("--Sport--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SPORT_LAYER, SPORT_SIZE, SPORT_END_CELL, SPORT_WIDTH);
-	check_setting = check_layer_configure(SPORT_LAYER, SPORT_SIZE, SPORT_END_CELL, SPORT_WIDTH, layer, check_layer, 65536);
+	if (!check_layer_configure(SPORT_LAYER, SPORT_SIZE, SPORT_END_CELL, SPORT_WIDTH, layer, check_layer, 65536))check_setting = 0;
 #endif
 #if DPORT
 	enable_layer++;
 	printf("--Dport--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DPORT_LAYER, DPORT_SIZE, DPORT_END_CELL, DPORT_WIDTH);
-	check_setting = check_layer_configure(DPORT_LAYER, DPORT_SIZE, DPORT_END_CELL, DPORT_WIDTH, layer, check_layer, 65536);
+	if (!check_layer_configure(DPORT_LAYER, DPORT_SIZE, DPORT_END_CELL, DPORT_WIDTH, layer, check_layer, 65536))check_setting = 0;
 #endif
 	printf("**********************************************************************\n");
 	if (enable_layer != LEVEL) {
-		fprintf(stderr, "-error- [LEVEL] error! You set %d layer, but you have using %d layer.\n", LEVEL, enable_layer);
+		fprintf(stderr, "Error - [LEVEL] error! You set %d layer, but you have using %d layer.\n", LEVEL, enable_layer);
 		check_setting = 0;
 	}
 	if (cell_num != CELL_SIZE) {
-		fprintf(stderr, "-error- [CELL_SIZE] error! Make sure it matches the layer setting %d.\n", cell_num);
+		fprintf(stderr, "Error - [CELL_SIZE] error! Make sure it matches the layer setting %d.\n", cell_num);
 		check_setting = 0;
 	}
 	return check_setting;
+}
+
+void check_indexCell(Cell* index)
+{
+	data* d = index->list;
+	for (int i = 0; i < index->size; i++) {
+		printf("%d %u %u ", d[i].PRI, (unsigned int)d[i].protocol[1], (unsigned int)d[i].protocol[0]);
+		for (int j = 3; j <= 0; j--)printf("%u ", (unsigned int)d[i].source_ip[j]);
+		printf("%u ", (unsigned int)d[i].source_mask);
+		for (int j = 3; j <= 0; j--)printf("%u ", (unsigned int)d[i].destination_ip[j]);
+		printf("%u ", (unsigned int)d[i].destination_mask);
+		printf("%u %u ", (unsigned int)d[i].source_port[0], (unsigned int)d[i].source_port[1]);
+		printf("%u %u\n", (unsigned int)d[i].destination_port[0], (unsigned int)d[i].destination_port[1]);
+	}
 }
