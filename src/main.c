@@ -15,8 +15,9 @@ int main() {
 	index = (Cell*)calloc(CELL_SIZE, sizeof(Cell));
 	//read_rules("/home/lzhy/ACL_dataset/acl2_256k.txt", &datasets);
 	//read_messages("/home/lzhy/ACL_dataset/acl2_256k_trace.txt", &message_sets);
-	read_rules("/root/ACL_dataset/acl2_256k.txt", &datasets);
-	read_messages("/root/ACL_dataset/acl2_256k_trace.txt", &message_sets);
+	
+	read_rules("/root/ACL_dataset/acl1_256k.txt", &datasets);
+	read_messages("/root/ACL_dataset/acl1_256k_trace-1.txt", &message_sets);
 
 	// get rand insert sequence
 	int* index_array = (int*)malloc(datasets.size * sizeof(int));
@@ -45,7 +46,7 @@ int main() {
 	printf("avg insert cycle: %f\n", (double)insert_cycle / datasets.size);
 	free(index_array);
 
-	//check_indexCell(index + 3585795);
+	//check_indexCell(index + 4934205);
 
 #if ENABLE_ANALYSE
 	//analyse_log(&datasets);
@@ -60,10 +61,10 @@ int main() {
 	res_fp = fopen("match_cycle.txt", "w");
 
 	// match
-	for (int i = 0; i < message_sets.size; i += 100) {
+	for (int i = 0; i < message_sets.size; i += RECORD_STEP) {
 		res = match_with_log(index, message_sets.list + i, &cycle, &match_log);
 #if ENABLE_LOG
-		fprintf(res_fp, "message %d match_rule %d cycle %f check_rules %d check_element %d\n", i + 100, res, cycle / 100.0, match_log.rules, match_log.ele);
+		fprintf(res_fp, "message %d match_rule %d cycle %f check_rules %d check_element %d\n", i + RECORD_STEP, res, (double)cycle / RECORD_STEP, match_log.rules, match_log.ele);
 		for (int j = 0; j < (1 << LEVEL); j++) {
 			fprintf(res_fp, "\tid %d ", match_log.list[j].id);
 			for (int k = 0; k < LEVEL; k++) fprintf(res_fp, "%d ", match_log.list[j].layer[k]);
@@ -71,7 +72,7 @@ int main() {
 				match_log.list[j].size, match_log.list[j].rules, match_log.list[j].ele, match_log.list[j].HPRI, match_log.list[j].match);
 		}
 #else
-		fprintf(res_fp, "message %d match_rule %d cycle %f\n", i + 100, res, cycle / 100.0);
+		fprintf(res_fp, "message %d match_rule %d cycle %f\n", i + RECORD_STEP, res, (double)cycle / RECORD_STEP);
 #endif
 	}
 
@@ -83,7 +84,7 @@ int main() {
 	free(message_sets.list); // free message list
 	free(datasets.list);  // free dataset list
 	free(match_log.list);  // free log list
-
+	printf("program complete\n");
 	return 0;
 }
 

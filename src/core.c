@@ -108,7 +108,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 	unsigned short es_port, ed_port;
 	int res;
 
-	for (int num = 0; num < 100; num++) {
+	for (int num = 0; num < RECORD_STEP; num++) {
 #if ENABLE_LOG
 		log->rules = log->ele = 0;
 		memset(log->list, 0, (1 << LEVEL) * sizeof(LogInCell));
@@ -629,10 +629,10 @@ void check_indexCell(Cell* index)
 	data* d = index->list;
 	for (int i = 0; i < index->size; i++) {
 		printf("%d %u %u ", d[i].PRI, (unsigned int)d[i].protocol[1], (unsigned int)d[i].protocol[0]);
-		for (int j = 3; j <= 0; j--)printf("%u ", (unsigned int)d[i].source_ip[j]);
-		printf("%u ", (unsigned int)d[i].source_mask);
-		for (int j = 3; j <= 0; j--)printf("%u ", (unsigned int)d[i].destination_ip[j]);
-		printf("%u ", (unsigned int)d[i].destination_mask);
+		for (int j = 3; j >= 0; j--)printf("%u.", (unsigned int)d[i].source_ip[j]);
+		printf("/%u ", (unsigned int)d[i].source_mask);
+		for (int j = 3; j >= 0; j--)printf("%u.", (unsigned int)d[i].destination_ip[j]);
+		printf("/%u ", (unsigned int)d[i].destination_mask);
 		printf("%u %u ", (unsigned int)d[i].source_port[0], (unsigned int)d[i].source_port[1]);
 		printf("%u %u\n", (unsigned int)d[i].destination_port[0], (unsigned int)d[i].destination_port[1]);
 	}

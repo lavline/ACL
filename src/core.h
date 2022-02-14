@@ -4,6 +4,7 @@
 
 #define ENABLE_LOG 0
 #define ENABLE_ANALYSE 0
+#define RECORD_STEP 100
 
 #define LEVEL 5  // The index layer number. It can be set to 3, 4, 5.
 
