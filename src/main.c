@@ -33,9 +33,9 @@ int main() {
 		strcat(result_file, files[i]);
 		strcat(result_file, ".txt");
 
-		//printf("%s\n", rule_file);
-		//printf("%s\n", trace_file);
-		//printf("%s\n", result_file);
+		printf("%s\n", rule_file);
+		printf("%s\n", trace_file);
+		printf("%s\n", result_file);
 
 		read_rules(rule_file, &datasets);
 		read_messages(trace_file, &message_sets);
