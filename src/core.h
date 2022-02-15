@@ -6,27 +6,27 @@
 #define ENABLE_ANALYSE 1
 #define RECORD_STEP 100
 
-#define LEVEL 5  // The index layer number. It can be set to 3, 4, 5.
+#define LEVEL 4  // The index layer number. It can be set to 3, 4, 5.
 
-#define PROTO 1  // if equal to 1 using this att to index
+#define PROTO 0  // if equal to 1 using this att to index
 #define PROTO_LAYER 4  //  if this att is enabled, this refers to the layer
 #define PROTO_SIZE 5  // protocol layer cell number
 #define PROTO_END_CELL 4  // protocol layer cell end id
 
 #define SIP_1 1
-#define SIP_1_LAYER 0
-#define SIP_SIZE_1 65
-#define SIP_EDN_CELL_1 64
-#define SIP_WIDTH_1 2  // using to comput index cell id ( x >> *_WIDYH = id )
+#define SIP_1_LAYER 2
+#define SIP_SIZE_1 33
+#define SIP_EDN_CELL_1 32
+#define SIP_WIDTH_1 3  // using to comput index cell id ( x >> *_WIDYH = id )
 
 #define SIP_2 1
-#define SIP_2_LAYER 1
-#define SIP_SIZE_2 33
-#define SIP_EDN_CELL_2 32
-#define SIP_WIDTH_2 3
+#define SIP_2_LAYER 0
+#define SIP_SIZE_2 65
+#define SIP_EDN_CELL_2 64
+#define SIP_WIDTH_2 2
 
 #define SIP_3 0
-#define SIP_3_LAYER 1
+#define SIP_3_LAYER 3
 #define SIP_SIZE_3 33
 #define SIP_EDN_CELL_3 32
 #define SIP_WIDTH_3 3
@@ -37,19 +37,19 @@
 #define SIP_EDN_CELL_4 256
 #define SIP_WIDTH_4 0
 
-#define DIP_1 1
+#define DIP_1 0
 #define DIP_1_LAYER 2
 #define DIP_SIZE_1 33
 #define DIP_EDN_CELL_1 32
 #define DIP_WIDTH_1 3
 
 #define DIP_2 1
-#define DIP_2_LAYER 3
-#define DIP_SIZE_2 17
-#define DIP_EDN_CELL_2 16
-#define DIP_WIDTH_2 4
+#define DIP_2_LAYER 1
+#define DIP_SIZE_2 65
+#define DIP_EDN_CELL_2 64
+#define DIP_WIDTH_2 2
 
-#define DIP_3 0
+#define DIP_3 1
 #define DIP_3_LAYER 3
 #define DIP_SIZE_3 33
 #define DIP_EDN_CELL_3 32
@@ -74,12 +74,12 @@
 #define DPORT_WIDTH 10
 
 #define LAYER_0 65
-#define LAYER_1 33
+#define LAYER_1 65
 #define LAYER_2 33
-#define LAYER_3 17
-#define LAYER_4 5
+#define LAYER_3 33
+#define LAYER_4 0
 
-#define CELL_SIZE 6016725
+#define CELL_SIZE 4601025
 
 #define TCP 0x06
 #define ICMP 0x01

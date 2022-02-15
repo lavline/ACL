@@ -10,7 +10,8 @@ int main() {
 	if (!check_configure())return -1;
 	//printf("%ld\n", sizeof(int*));
 
-	char* dir = "/root/ACL_dataset/";
+	//char* dir = "/root/ACL_dataset/";
+	char* dir = "/home/lzhy/ACL_dataset/";
 	char* files[] = { "acl1_256k", "acl2_256k", "acl3_256k" , "acl4_256k" , "acl5_256k",
 					  "fw1_256k", "fw2_256k" ,"fw3_256k" ,"fw4_256k" ,"fw5_256k" , "ipc1_256k", "ipc2_256k" };
 
@@ -33,9 +34,9 @@ int main() {
 		strcat(result_file, files[i]);
 		strcat(result_file, ".txt");
 
-		printf("%s\n", rule_file);
-		printf("%s\n", trace_file);
-		printf("%s\n", result_file);
+		//printf("%s\n", rule_file);
+		//printf("%s\n", trace_file);
+		//printf("%s\n", result_file);
 
 		read_rules(rule_file, &datasets);
 		read_messages(trace_file, &message_sets);
