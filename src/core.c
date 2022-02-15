@@ -108,7 +108,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 	unsigned short es_port, ed_port;
 	int res;
 
-	for (int num = 0; num < RECORD_STEP; num++) {
+	//for (int num = 0; num < RECORD_STEP; num++) {
 #if ENABLE_LOG
 		log->rules = log->ele = 0;
 		memset(log->list, 0, (1 << LEVEL) * sizeof(LogInCell));
@@ -304,8 +304,8 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 		}
 
 		if (res == 0x7FFFFFFF)res = -1;
-		++p;
-	}
+		//++p;
+	//}
 
 	time_2 = GetCPUCycle();
 

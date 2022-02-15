@@ -13,9 +13,9 @@ int main() {
 	ACL_messages message_sets = { 0,0,0 };
 	Cell* index;
 	index = (Cell*)calloc(CELL_SIZE, sizeof(Cell));
+
 	//read_rules("/home/lzhy/ACL_dataset/acl2_256k.txt", &datasets);
 	//read_messages("/home/lzhy/ACL_dataset/acl2_256k_trace.txt", &message_sets);
-	
 	read_rules("/root/ACL_dataset/acl1_256k.txt", &datasets);
 	read_messages("/root/ACL_dataset/acl1_256k_trace-1.txt", &message_sets);
 
@@ -55,16 +55,19 @@ int main() {
 #endif
 	int res = 0;
 	int cycle = 0;
+
 	MatchLog match_log;
+#if ENABLE_LOG
 	match_log.list = (LogInCell*)malloc((1 << LEVEL) * sizeof(LogInCell));
+#endif
 	FILE* res_fp = NULL;
 	res_fp = fopen("match_cycle.txt", "w");
 
 	// match
-	for (int i = 0; i < message_sets.size; i += RECORD_STEP) {
+	for (int i = 0; i < message_sets.size; i++) {
 		res = match_with_log(index, message_sets.list + i, &cycle, &match_log);
 #if ENABLE_LOG
-		fprintf(res_fp, "message %d match_rule %d cycle %f check_rules %d check_element %d\n", i + RECORD_STEP, res, (double)cycle / RECORD_STEP, match_log.rules, match_log.ele);
+		fprintf(res_fp, "message %d match_rule %d cycle %d check_rules %d check_element %d\n", i + RECORD_STEP, res, cycle, match_log.rules, match_log.ele);
 		for (int j = 0; j < (1 << LEVEL); j++) {
 			fprintf(res_fp, "\tid %d ", match_log.list[j].id);
 			for (int k = 0; k < LEVEL; k++) fprintf(res_fp, "%d ", match_log.list[j].layer[k]);
@@ -72,7 +75,7 @@ int main() {
 				match_log.list[j].size, match_log.list[j].rules, match_log.list[j].ele, match_log.list[j].HPRI, match_log.list[j].match);
 		}
 #else
-		fprintf(res_fp, "message %d match_rule %d cycle %f\n", i + RECORD_STEP, res, (double)cycle / RECORD_STEP);
+		fprintf(res_fp, "message %d match_rule %d cycle %d\n", i, res, cycle);
 #endif
 	}
 
@@ -83,7 +86,9 @@ int main() {
 	free(index);  // free cell
 	free(message_sets.list); // free message list
 	free(datasets.list);  // free dataset list
+#if ENABLE_LOG
 	free(match_log.list);  // free log list
+#endif
 	printf("program complete\n");
 	return 0;
 }
