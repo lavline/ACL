@@ -16,8 +16,8 @@ int main() {
 
 	//read_rules("/home/lzhy/ACL_dataset/acl2_256k.txt", &datasets);
 	//read_messages("/home/lzhy/ACL_dataset/acl2_256k_trace.txt", &message_sets);
-	read_rules("/root/ACL_dataset/acl1_256k.txt", &datasets);
-	read_messages("/root/ACL_dataset/acl1_256k_trace-1.txt", &message_sets);
+	read_rules("/root/ACL_dataset/acl3_256k.txt", &datasets);
+	read_messages("/root/ACL_dataset/acl3_256k_trace-1.txt", &message_sets);
 
 	// get rand insert sequence
 	int* index_array = (int*)malloc(datasets.size * sizeof(int));
