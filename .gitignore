@@ -364,3 +364,10 @@ FodyWeavers.xsd
 
 classbench_256k
 classbench_256k_s
+
+.vs
+.idea
+*.sln
+*.vcxproj
+*.filters
+*.user
