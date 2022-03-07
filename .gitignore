@@ -366,6 +366,7 @@ classbench_256k
 classbench_256k_s
 
 .vs
+.vs/
 .idea
 *.sln
 *.vcxproj

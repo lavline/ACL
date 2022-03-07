@@ -1,6 +1,11 @@
+#define _GNU_SOURCE
+#include <sched.h>
+
 #include"core.h"
 #include"read.h"
 #include <sys/time.h>
+#include <assert.h>
+
 void test(){
 	srand((int) time(0));
 	ACL_rules datasets = {0, 0, 0};
@@ -45,6 +50,13 @@ void test(){
 
 }
 int main() {
+	int core_id = 30;
+
+    cpu_set_t  mask;
+    CPU_ZERO(&mask);
+    CPU_SET(core_id, &mask);
+    sched_setaffinity(0, sizeof(mask), &mask);
+	
 //	test();
 	srand((int) time(0));
 #if PROTO
@@ -82,6 +94,7 @@ int main() {
 #endif
 	printf("%d %d %d %d\n\n", LAYER_0, LAYER_1, LAYER_2, LAYER_3);
 
+    /*
 	char ruleFileName[12][50] = {"acl1_256k.txt", "acl2_256k.txt", "acl3_256k.txt", "acl4_256k.txt", "acl5_256k.txt",
 								 "fw1_256k.txt", "fw2_256k.txt", "fw3_256k.txt", "fw4_256k.txt", "fw5_256k.txt",
 								 "ipc1_256k.txt", "ipc2_256k.txt"};
@@ -89,10 +102,15 @@ int main() {
 								 "acl4_256k_trace.txt", "acl5_256k_trace.txt", "fw1_256k_trace.txt",
 								 "fw2_256k_trace.txt", "fw3_256k_trace.txt", "fw4_256k_trace.txt", "fw5_256k_trace.txt",
 								 "ipc1_256k_trace.txt", "ipc2_256k_trace.txt"};
+    */
+
+	char ruleFileName[6][50] = {"rules1.txt", "rules2.txt", "rules3.txt", "rules4.txt", "rules5.txt", "rules6.txt"};
+	char headFileName[6][50] = {"tuples1.txt","tuples2.txt","tuples3.txt","tuples4.txt","tuples5.txt","tuples6.txt"};
+
 	double totalMatchCycle=0;
 	double totalInsertCycle = 0;
 
-	for (int q = 0; q < 12; q++) {
+	for (int q = 0; q < 5; q++) {
 		ACL_rules datasets = { 0,0,0 };
 		ACL_messages message_sets = { 0,0,0 };
 		Cell* index;
@@ -106,6 +124,7 @@ int main() {
 		strcat(tmpFileName, ruleFileName[q]);
 		read_rules(tmpFileName, &datasets);
 
+/*
 #if useShuffleRule
 		for (int i = 0, to; i < datasets.size; i++) {
 			to = rand() % datasets.size;
@@ -114,6 +133,7 @@ int main() {
 			datasets.list[to] = r;
 		}
 #endif
+*/
 
 #if useShuffleHeader
 		strcpy(tmpFileName, "classbench_256k_s/");
@@ -162,6 +182,15 @@ int main() {
 //		clock_t start = clock();
 		for (int i = 0; i < message_sets.size; i += intervalRule) {
 			res = match_with_log(index, message_sets.list + i, &oneCycle, &match_log);
+
+            if (res != (message_sets.list + i)->rule_id) {
+                if (res == -1) {
+                    assert((message_sets.list + i)->rule_id == 0);
+                } else {
+                    assert(0);
+                }
+            }
+
 //			res = match_with_log_cache(index, message_sets.list + i,bitset, &oneCycle, &match_log);
 //			setCycle+=oneCycle;
 //			cycleList[i] = oneCycle;

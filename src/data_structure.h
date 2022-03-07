@@ -46,6 +46,7 @@ typedef struct message
 	unsigned char destination_ip[4];
 	unsigned short source_port;
 	unsigned short destination_port;
+    unsigned int rule_id;
 }message;
 
 typedef struct ACL_messages

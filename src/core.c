@@ -254,6 +254,13 @@ int match(Cell *c_list, message *m) {
 }
 
 int match_with_log(Cell *c_list, message *m, int *_cycle, MatchLog *log) {
+    /*
+    printf("try to match %u.%u.%u.%u %u.%u.%u.%u %u %u %u %u\n", 
+        m->source_ip[3], m->source_ip[2], m->source_ip[1], m->source_ip[0],
+        m->destination_ip[3], m->destination_ip[2], m->destination_ip[1], m->destination_ip[0],
+        m->source_port, m->destination_port, m->protocol, m->rule_id);
+    */
+
 //	uint64_t time_1, time_2;
 //
 //	time_1 = GetCPUCycle();
