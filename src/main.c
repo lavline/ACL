@@ -136,9 +136,9 @@ int main() {
 		}
 #endif
 */
-		strcpy(tmpFileName, "output/rule_distribution_");
-		strcat(tmpFileName, ruleFileName[q]);
-		analyse_log2(&datasets, tmpFileName);
+//		strcpy(tmpFileName, "output/rule_distribution_");
+//		strcat(tmpFileName, ruleFileName[q]);
+//		analyse_log2(&datasets, tmpFileName);
 
 //		strcpy(tmpFileName, "output/rule_protocol_");
 //		strcat(tmpFileName, ruleFileName[q]);
