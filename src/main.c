@@ -50,7 +50,7 @@ void test(){
 
 }
 int main() {
-	int core_id = 30;
+	int core_id = 12;
 
     cpu_set_t  mask;
     CPU_ZERO(&mask);
@@ -110,16 +110,18 @@ int main() {
 	double totalMatchCycle=0;
 	double totalInsertCycle = 0;
 
-	for (int q = 0; q < 5; q++) {
+	for (int q = 0; q < 6; q++) {
 		ACL_rules datasets = { 0,0,0 };
 		ACL_messages message_sets = { 0,0,0 };
 		Cell* index;
 		index = (Cell*)calloc(CELL_SIZE, sizeof(Cell));
 
-#if useShuffleRule // 这里其实不用分,两个文件夹下的规则集是一样的
+#if useShuffleRule==0
 		char tmpFileName[100] = "classbench_256k_s/";
-#else
+#elif useShuffleRule==1
 		char tmpFileName[100] = "classbench_256k/";
+#else
+		char tmpFileName[100] = "acl_128k_test/";
 #endif
 		strcat(tmpFileName, ruleFileName[q]);
 		read_rules(tmpFileName, &datasets);
@@ -134,11 +136,20 @@ int main() {
 		}
 #endif
 */
+		strcpy(tmpFileName, "output/rule_distribution_");
+		strcat(tmpFileName, ruleFileName[q]);
+		analyse_log2(&datasets, tmpFileName);
 
-#if useShuffleHeader
+//		strcpy(tmpFileName, "output/rule_protocol_");
+//		strcat(tmpFileName, ruleFileName[q]);
+//		printProtocolType(&datasets, tmpFileName);
+
+#if useShuffleHeader==0
 		strcpy(tmpFileName, "classbench_256k_s/");
-#else
+#elif useShuffleHeader==1
 		strcpy(tmpFileName, "classbench_256k/");
+#else
+		strcpy(tmpFileName, "acl_128k_test/");
 #endif
 		strcat(tmpFileName, headFileName[q]);
 		read_messages(tmpFileName, &message_sets);
@@ -182,11 +193,14 @@ int main() {
 //		clock_t start = clock();
 		for (int i = 0; i < message_sets.size; i += intervalRule) {
 			res = match_with_log(index, message_sets.list + i, &oneCycle, &match_log);
-
+//			res = match_with_log_cache(index, message_sets.list + i, bitset, &oneCycle, &match_log);
             if (res != (message_sets.list + i)->rule_id) {
                 if (res == -1) {
+					if((message_sets.list + i)->rule_id!=0)
+						printf("%d fails: %d !=%d.\n",i,res,(message_sets.list + i)->rule_id);
                     assert((message_sets.list + i)->rule_id == 0);
                 } else {
+					printf("%d header fails: %d !=%d.\n",i,res,(message_sets.list + i)->rule_id);
                     assert(0);
                 }
             }
@@ -208,7 +222,6 @@ int main() {
 		setCycle = (double)(time_2 - time_1);
 		totalMatchCycle+=setCycle/message_sets.size;
 		printf("avgCycle= %f\n\n", setCycle/message_sets.size);
-		printf("oneCycle= %d\n", oneCycle);
 		gettimeofday(&endtime,0);
 		double timeuse = 1000000*(endtime.tv_sec - starttime.tv_sec) + endtime.tv_usec - starttime.tv_usec;
 		printf("avgMatchTime= %fus\n\n",timeuse/message_sets.size);

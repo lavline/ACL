@@ -364,6 +364,8 @@ FodyWeavers.xsd
 
 classbench_256k
 classbench_256k_s
+acl_128k_test
+acl_rules_128K_yingcai
 
 .vs
 .vs/
@@ -372,3 +374,4 @@ classbench_256k_s
 *.vcxproj
 *.filters
 *.user
+

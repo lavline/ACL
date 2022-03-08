@@ -1,7 +1,7 @@
 #include"core.h"
 
-void insert(Cell *c_list, rule *r) {
-	rule *p = r;
+void insert(Cell *c_list, rule *p) {
+//	rule *p = r;
 	unsigned int c_id[LEVEL]; //index cell id
 	data _d;
 	memcpy(&_d, p, sizeof(data));
@@ -79,15 +79,6 @@ void insert(Cell *c_list, rule *r) {
 	//for(int i=0;i<LEVEL;i++)printf("%d ", c_id[i]);
 	//printf("\n");
 
-//	if (d_mask == 32) {
-//		int bitsetNo = (int) p->destination_ip[0];
-//		int unitNo = p->PRI / 8;
-//		int offset = p->PRI % 8;
-//		for (int i = 0; i < 256; i++) {
-//			if (i != bitsetNo)
-//				bitset[i][unitNo] = bitset[i][unitNo] | 1 << offset;
-//		}
-//	}
 	add_data_ordered(c_list + (((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3]), &_d);
 }
 
@@ -179,73 +170,73 @@ void insert_cache(Cell *c_list, rule *p,unsigned char** bitset){
 //		}
 //	}
 
-//	if(p->destination_mask>7){
-//		int bitsetNo = (int) p->destination_ip[3];
-//		int unitNo=p->PRI/8;
-//		int offset=p->PRI&7;
-//		for (int i = 0; i < 256; i++) {
-//			if (i != bitsetNo)
-//				bitset[i][unitNo] = bitset[i][unitNo]|1<<offset;
-//		}
-////		printf("%d %d %d\n",bitsetNo,unitNo,offset);
-//	}
-
-	if ((unsigned int) p->protocol[0] != 0){
-		int bitsetNo=-1;
+	if(p->destination_mask>7){
+		int bitsetNo = (int) p->destination_ip[3];
 		int unitNo=p->PRI/8;
 		int offset=p->PRI&7;
-		switch ((unsigned int) p->protocol[1]) {
-			case ICMP:
-				bitsetNo=0;
-				break;
-			case IGMP:
-				bitsetNo = 1;
-				break;
-			case GGP:
-				bitsetNo = 2;
-				break;
-			case IP:
-				bitsetNo = 3;
-				break;
-			case ST:
-				bitsetNo = 4;
-				break;
-			case TCP:
-				bitsetNo = 5;
-				break;
-			case CBT:
-				bitsetNo = 6;
-				break;
-			case EGP:
-				bitsetNo = 7;
-				break;
-			case UDP:
-				bitsetNo = 8;
-				break;
-			case GRE:
-				bitsetNo = 9;
-				break;
-			case ESP:
-				bitsetNo = 10;
-				break;
-			case AH:
-				bitsetNo = 11;
-				break;
-			case EIGRP:
-				bitsetNo = 12;
-				break;
-			case OSPFIGP:
-				bitsetNo = 13;
-				break;
-			default:
-				fprintf(stderr, "Rule %d Error - unknown message protocol %u !\n", p->PRI, p->protocol[1]);
-				return;
+		for (int i = 0; i < 256; i++) {
+			if (i != bitsetNo)
+				bitset[i][unitNo] = bitset[i][unitNo]|1<<offset;
 		}
-		for (int i = 0; i < 14; i++) {
-			if(i!=bitsetNo)
-				bitset[i][unitNo] = bitset[i][unitNo] | 1 << offset;
-		}
+//		printf("%d %d %d\n",bitsetNo,unitNo,offset);
 	}
+
+//	if ((unsigned int) p->protocol[0] != 0){
+//		int bitsetNo=-1;
+//		int unitNo=p->PRI/8;
+//		int offset=p->PRI&7;
+//		switch ((unsigned int) p->protocol[1]) {
+//			case ICMP:
+//				bitsetNo=0;
+//				break;
+//			case IGMP:
+//				bitsetNo = 1;
+//				break;
+//			case GGP:
+//				bitsetNo = 2;
+//				break;
+//			case IP:
+//				bitsetNo = 3;
+//				break;
+//			case ST:
+//				bitsetNo = 4;
+//				break;
+//			case TCP:
+//				bitsetNo = 5;
+//				break;
+//			case CBT:
+//				bitsetNo = 6;
+//				break;
+//			case EGP:
+//				bitsetNo = 7;
+//				break;
+//			case UDP:
+//				bitsetNo = 8;
+//				break;
+//			case GRE:
+//				bitsetNo = 9;
+//				break;
+//			case ESP:
+//				bitsetNo = 10;
+//				break;
+//			case AH:
+//				bitsetNo = 11;
+//				break;
+//			case EIGRP:
+//				bitsetNo = 12;
+//				break;
+//			case OSPFIGP:
+//				bitsetNo = 13;
+//				break;
+//			default:
+//				fprintf(stderr, "Rule %d Error - unknown message protocol %u !\n", p->PRI, p->protocol[1]);
+//				return;
+//		}
+//		for (int i = 0; i < 14; i++) {
+//			if(i!=bitsetNo)
+//				bitset[i][unitNo] = bitset[i][unitNo] | 1 << offset;
+//		}
+//	}
 	add_data_ordered(c_list + (((c_id[0] * LAYER_1 + c_id[1]) * LAYER_2 + c_id[2]) * LAYER_3 + c_id[3]), &_d);
 }
 
@@ -473,52 +464,52 @@ int match_with_log_cache(Cell* c_list, message* m,unsigned char** bitset,int* _c
 	memcpy(&ed_ip, p->destination_ip, 4);
 	es_port = p->source_port;
 	ed_port = p->destination_port;
-//	int bitsetNo = (int) p->destination_ip[0];
-	int bitsetNo;//=(int) p->destination_ip[3];
-	switch (e_protocol) {
-		case ICMP:
-			bitsetNo = 0;
-			break;
-		case IGMP:
-			bitsetNo = 1;
-			break;
-		case GGP:
-			bitsetNo = 2;
-			break;
-		case IP:
-			bitsetNo = 3;
-			break;
-		case ST:
-			bitsetNo = 4;
-			break;
-		case TCP:
-			bitsetNo = 5;
-			break;
-		case CBT:
-			bitsetNo = 6;
-			break;
-		case EGP:
-			bitsetNo = 7;
-			break;
-		case UDP:
-			bitsetNo = 8;
-			break;
-		case GRE:
-			bitsetNo = 9;
-			break;
-		case ESP:
-			bitsetNo = 10;
-			break;
-		case AH:
-			bitsetNo = 11;
-			break;
-		case EIGRP:
-			bitsetNo = 12;
-			break;
-		case OSPFIGP:
-			bitsetNo = 13;
-			break;
-	}
+	int bitsetNo = (int) p->destination_ip[3];
+//	int bitsetNo;//=(int) p->destination_ip[3];
+//	switch (e_protocol) {
+//		case ICMP:
+//			bitsetNo = 0;
+//			break;
+//		case IGMP:
+//			bitsetNo = 1;
+//			break;
+//		case GGP:
+//			bitsetNo = 2;
+//			break;
+//		case IP:
+//			bitsetNo = 3;
+//			break;
+//		case ST:
+//			bitsetNo = 4;
+//			break;
+//		case TCP:
+//			bitsetNo = 5;
+//			break;
+//		case CBT:
+//			bitsetNo = 6;
+//			break;
+//		case EGP:
+//			bitsetNo = 7;
+//			break;
+//		case UDP:
+//			bitsetNo = 8;
+//			break;
+//		case GRE:
+//			bitsetNo = 9;
+//			break;
+//		case ESP:
+//			bitsetNo = 10;
+//			break;
+//		case AH:
+//			bitsetNo = 11;
+//			break;
+//		case EIGRP:
+//			bitsetNo = 12;
+//			break;
+//		case OSPFIGP:
+//			bitsetNo = 13;
+//			break;
+//	}
 	unsigned char* bitset_=bitset[bitsetNo];
 
 	unsigned int c_id[LEVEL][2];
@@ -612,7 +603,7 @@ int match_with_log_cache(Cell* c_list, message* m,unsigned char** bitset,int* _c
 //						if (q->size == 0)continue;
 					data *_d = q->list;
 					unsigned int _ip;
-					if(q->size>3000){
+					if(q->size>5000){
 						for (int u = 0; u < q->size; u++, ++_d) { //check in cell
 
 
@@ -920,6 +911,362 @@ void analyse_log(ACL_rules *data) {
 		fprintf(fp, "\n");
 	}
 	fclose(fp);
+}
+
+// Rule Distribution
+void analyse_log2(ACL_rules *data, char outputFileName[]) {
+	int *protocal = (int *) calloc(15, sizeof(int));
+
+	void *storage = (void *) calloc(4 * 257, sizeof(int));
+	int **srcIP = (void **) malloc(4 * sizeof(void *));
+	for (int i = 0; i < 4; i++) {
+		srcIP[i] = storage + i * 257 * sizeof(int); // 服务器环境
+	}
+	storage = (void *) calloc(4 * 257, sizeof(int));
+	int **dstIP = (void **) malloc(4 * sizeof(void *));
+	for (int i = 0; i < 4; i++) {
+		dstIP[i] = storage + i * 257 * sizeof(int); // 服务器环境
+	}
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 257; j++)
+			if (srcIP[i][j] != 0 || dstIP[i][j] != 0)
+				printf("%d %d\n", srcIP[i][j], dstIP[i][j]);
+
+	int srcMaskType[33];
+	memset(srcMaskType, 0, sizeof(srcMaskType));
+	int dstMaskType[33];
+	memset(dstMaskType, 0, sizeof(dstMaskType));
+
+	const int portCellNum = 257;
+	int portShift = 16 - __builtin_ctz(portCellNum - 1); // 区间长度是2的多少次方
+	int srcPort[portCellNum];
+	int dstPort[portCellNum];
+	memset(srcPort, 0, sizeof(srcPort));
+	memset(dstPort, 0, sizeof(dstPort));
+
+	int sPWidth[portCellNum];
+	int dPWidth[portCellNum];
+	memset(sPWidth, 0, sizeof(sPWidth));
+	memset(dPWidth, 0, sizeof(dPWidth));
+
+	for (int i = 0; i < data->size; i++) {
+		rule *p = data->list + i;
+
+		if ((unsigned int) p->protocol[0] == 0) protocal[0]++;
+		else {
+			int ptl;
+			switch ((unsigned int) p->protocol[1]) {
+				case ICMP:
+					ptl = 1;
+					break;
+				case TCP:
+					ptl = 2;
+					break;
+				case UDP:
+					ptl = 3;
+					break;
+				case RSVP:
+					ptl = 4;
+					break;
+				case ISIS:
+					ptl = 5;
+					break;
+				default:
+					fprintf(stderr, "Rule %d Error - unknown message protocol %u !\n", p->PRI, p->protocol[1]);
+					return;
+			}
+//			switch ((unsigned int) p->protocol[1]) {
+//				case ICMP:
+//					ptl = 1;
+//					break;
+//				case IGMP:
+//					ptl = 2;
+//					break;
+//				case GGP:
+//					ptl = 3;
+//					break;
+//				case IP:
+//					ptl = 4;
+//					break;
+//				case ST:
+//					ptl = 5;
+//					break;
+//				case TCP:
+//					ptl = 6;
+//					break;
+//				case CBT:
+//					ptl = 7;
+//					break;
+//				case EGP:
+//					ptl = 8;
+//					break;
+//				case UDP:
+//					ptl = 9;
+//					break;
+//				case GRE:
+//					ptl = 10;
+//					break;
+//				case ESP:
+//					ptl = 11;
+//					break;
+//				case AH:
+//					ptl = 12;
+//					break;
+//				case EIGRP:
+//					ptl = 13;
+//					break;
+//				case OSPFIGP:
+//					ptl = 14;
+//					break;
+//				default:
+//					fprintf(stderr, "Rule %d Error - unknown message protocol %u !\n", p->PRI, p->protocol[1]);
+//					return;
+//			}
+			protocal[ptl]++;
+		}
+
+		srcMaskType[(unsigned int) (p->source_mask)]++;
+		switch ((unsigned int) (p->source_mask >> 3)) {
+			case 0:
+				srcIP[0][256]++;
+				break;
+			case 1:
+				srcIP[0][(unsigned int) p->source_ip[3]]++;
+				srcIP[1][256]++;
+				break;
+			case 2:
+				srcIP[0][(unsigned int) p->source_ip[3]]++;
+				srcIP[1][(unsigned int) p->source_ip[2]]++;
+				srcIP[2][256]++;
+				break;
+			case 3:
+				srcIP[0][(unsigned int) p->source_ip[3]]++;
+				srcIP[1][(unsigned int) p->source_ip[2]]++;
+				srcIP[2][(unsigned int) p->source_ip[1]]++;
+				srcIP[3][256]++;
+				break;
+			case 4:
+				srcIP[0][(unsigned int) p->source_ip[3]]++;
+				srcIP[1][(unsigned int) p->source_ip[2]]++;
+				srcIP[2][(unsigned int) p->source_ip[1]]++;
+				srcIP[3][(unsigned int) p->source_ip[0]]++;
+				break;
+			default:
+				printf("Error src_mask: %d\n", p->source_mask);
+		}
+
+		dstMaskType[(unsigned int) p->destination_mask]++;
+		switch ((unsigned int) (p->destination_mask >> 3)) {
+			case 0:
+				dstIP[0][256]++;
+				break;
+			case 1:
+				dstIP[0][(unsigned int) p->destination_ip[3]]++;
+				dstIP[1][256]++;
+				break;
+			case 2:
+				dstIP[0][(unsigned int) p->destination_ip[3]]++;
+				dstIP[1][(unsigned int) p->destination_ip[2]]++;
+				dstIP[2][256]++;
+				break;
+			case 3:
+				dstIP[0][(unsigned int) p->destination_ip[3]]++;
+				dstIP[1][(unsigned int) p->destination_ip[2]]++;
+				dstIP[2][(unsigned int) p->destination_ip[1]]++;
+				dstIP[3][256]++;
+				break;
+			case 4:
+				dstIP[0][(unsigned int) p->destination_ip[3]]++;
+				dstIP[1][(unsigned int) p->destination_ip[2]]++;
+				dstIP[2][(unsigned int) p->destination_ip[1]]++;
+				dstIP[3][(unsigned int) p->destination_ip[0]]++;
+				break;
+			default:
+				printf("Error dst_mask: %d\n", p->destination_mask >> 3);
+		}
+
+		int portCell = p->source_port[0] >> portShift;
+		if (portCell == p->source_port[1] >> portShift)
+			srcPort[portCell]++;
+		else srcPort[portCellNum - 1]++;
+
+		portCell = p->destination_port[0] >> portShift;
+		if (portCell == p->destination_port[1] >> portShift)
+			dstPort[portCell]++;
+		else dstPort[portCellNum - 1]++;
+
+		sPWidth[((int)p->source_port[1]-(int)p->source_port[0])>>portShift]++;
+		dPWidth[((int)p->destination_port[1]-(int)p->destination_port[0])>>portShift]++;
+	}
+
+	long long int protocolAvg = 0, protocalVar = 0, protocolNum = 0;
+	for (int i = 0; i < 15; i++)
+		if (protocal[i] > 0) {
+			protocolAvg += protocal[i];
+			protocolNum++;
+		}
+	protocolNum=6; // 按15个桶算方差，方差小一些
+	protocolAvg /= protocolNum;
+	for (int i = 0; i < 15; i++)
+		if (protocal[i] > 0)
+			protocalVar += pow(protocal[i] - protocolAvg, 2);
+	protocalVar = sqrt(protocalVar / protocolNum);
+
+	long long int IPvar[8], IPavg[8];
+	memset(IPvar, 0, sizeof(IPvar));
+	memset(IPavg, 0, sizeof(IPavg));
+	for (int i = 0; i < 257; i++) {
+		for (int j = 0; j < 4; j++) {
+			IPavg[j] += srcIP[j][i];
+			IPavg[j + 4] += dstIP[j][i];
+		}
+	}
+	for (int i = 0; i < 8; i++)
+		IPavg[i] /= 257;
+	for (int i = 0; i < 257; i++) {
+		for (int j = 0; j < 4; j++) {
+			IPvar[j] += pow(srcIP[j][i] - IPavg[j], 2);
+			IPvar[j + 4] += pow(dstIP[j][i] - IPavg[j + 4], 2);
+		}
+	}
+	for (int i = 0; i < 8; i++)
+		IPvar[i] = (int) sqrt((double) IPvar[i] / 257);
+
+	long long int portVar[2], portAvg[2];
+	memset(portVar, 0, sizeof(portVar));
+	memset(portAvg, 0, sizeof(portAvg));
+	for (int i = 0; i < portCellNum; i++) {
+		portAvg[0] += srcPort[i];
+		portAvg[1] += dstPort[i];
+	}
+	portAvg[0] /= portCellNum;
+	portAvg[1] /= portCellNum;
+	for (int i = 0; i < portCellNum; i++) {
+		portVar[0] += pow(srcPort[i] - portAvg[0], 2);
+		portVar[1] += pow(dstPort[i] - portAvg[1], 2);
+	}
+	for (int i = 0; i < 2; i++)
+		portVar[i] = (int) sqrt((double) portVar[i] / portCellNum);
+
+	long long int portWidthVar[2], portWidthAvg[2];
+	memset(portWidthVar, 0, sizeof(portWidthVar));
+	memset(portWidthAvg, 0, sizeof(portWidthAvg));
+	for (int i = 0; i < portCellNum; i++) {
+		portWidthAvg[0] += sPWidth[i];
+		portWidthAvg[1] += dPWidth[i];
+	}
+	portWidthAvg[0] /= portCellNum;
+	portWidthAvg[1] /= portCellNum;
+	for (int i = 0; i < portCellNum; i++) {
+		portWidthVar[0] += pow(sPWidth[i] - portWidthAvg[0], 2);
+		portWidthVar[1] += pow(dPWidth[i] - portWidthAvg[1], 2);
+	}
+	for (int i = 0; i < 2; i++)
+		portWidthVar[i] = (int) sqrt((double) portWidthVar[i] / portCellNum);
+
+	FILE *fp = NULL;
+	fp = fopen(outputFileName, "w");
+	fprintf(fp, "Total Rules: %d\n\n", data->size);
+	for (int i = 0; i < 15; i++) {
+		if (i > 0 && i % 5 == 0)fprintf(fp, "\n");
+		fprintf(fp, "P%d=%-6d\t", i, protocal[i]);
+	}
+	fprintf(fp, "\nprotocalVar= %d\n\n", protocalVar);
+
+	fprintf(fp, "srcMask=0: %d\n", srcMaskType[0]);
+	for (int i = 1; i < 33; i++) {
+		fprintf(fp, "%2d: %4d\t", i, srcMaskType[i]);
+		if (i % 8 == 0) fprintf(fp, "\n");
+	}
+	fprintf(fp, "\ndstMask=0: %d\n", dstMaskType[0]);
+	for (int i = 1; i < 33; i++) {
+		fprintf(fp, "%2d: %4d\t", i, dstMaskType[i]);
+		if (i % 8 == 0) fprintf(fp, "\n");
+	}
+//	for(int i=0;i<33;i++){
+//		totalSrcMaskType[i]+=srcMaskType[i];
+//		totalDstMaskType[i]+=dstMaskType[i];
+//	}
+
+	fprintf(fp, "\nNo.\tsrc1\tsrc2\tsrc3\tsrc4\tdst1\tdst2\tdst3\tdst4\tsrcPort\tdstPort\tsPWidth\tdPWidth\n");
+	for (int i = 0; i < MAX(257, portCellNum); i++) {
+		if (i < MIN(257, portCellNum))
+			fprintf(fp, "%d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\n", i, srcIP[0][i], srcIP[1][i],
+					srcIP[2][i], srcIP[3][i], dstIP[0][i], dstIP[1][i], dstIP[2][i], dstIP[3][i], srcPort[i],
+					dstPort[i],sPWidth[i],dPWidth[i]);
+		else if (i < 257)
+			fprintf(fp, "%d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\t%4d\n", i, srcIP[0][i], srcIP[1][i], srcIP[2][i],
+					srcIP[3][i], dstIP[0][i], dstIP[1][i], dstIP[2][i], dstIP[3][i]);
+		else
+			fprintf(fp, "%d\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t%4d\t%4d\t%4d\t%4d\n", i, srcPort[i], dstPort[i],sPWidth[i],dPWidth[i]);
+	}
+	fprintf(fp, "var\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\n", IPvar[0], IPvar[1], IPvar[2],
+			IPvar[3], IPvar[4],
+			IPvar[5], IPvar[6], IPvar[7], portVar[0], portVar[1],portWidthVar[0],portWidthVar[1]);
+
+	// 不算通配求方差
+	memset(IPvar, 0, sizeof(IPvar));
+	memset(IPavg, 0, sizeof(IPavg));
+	for (int i = 0; i < 256; i++) {
+		for (int j = 0; j < 4; j++) {
+			IPavg[j] += srcIP[j][i];
+			IPavg[j + 4] += dstIP[j][i];
+		}
+	}
+	for (int i = 0; i < 8; i++)
+		IPavg[i] /= 256;
+	for (int i = 0; i < 256; i++) {
+		for (int j = 0; j < 4; j++) {
+			IPvar[j] += pow(srcIP[j][i] - IPavg[j], 2);
+			IPvar[j + 4] += pow(dstIP[j][i] - IPavg[j + 4], 2);
+		}
+	}
+	for (int i = 0; i < 8; i++)
+		IPvar[i] = (int) sqrt((double) IPvar[i] / 256);
+
+	memset(portVar, 0, sizeof(portVar));
+	memset(portAvg, 0, sizeof(portAvg));
+	for (int i = 0; i < portCellNum-1; i++) {
+		portAvg[0] += srcPort[i];
+		portAvg[1] += dstPort[i];
+	}
+	portAvg[0] /= (portCellNum-1);
+	portAvg[1] /= (portCellNum-1);
+	for (int i = 0; i < portCellNum-1; i++) {
+		portVar[0] += pow(srcPort[i] - portAvg[0], 2);
+		portVar[1] += pow(dstPort[i] - portAvg[1], 2);
+	}
+	for (int i = 0; i < 2; i++)
+		portVar[i] = (int) sqrt((double) portVar[i] / (portCellNum-1));
+
+	fprintf(fp, "V2\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\t%4ld\n", IPvar[0], IPvar[1], IPvar[2],
+			IPvar[3], IPvar[4],
+			IPvar[5], IPvar[6], IPvar[7], portVar[0], portVar[1]);
+	fclose(fp);
+	free(srcIP[0]), free(srcIP), free(dstIP[0]), free(dstIP), free(protocal);
+}
+
+void printProtocolType(ACL_rules *data, char outputFileName[]) {
+	int *protocal = (int *) calloc(257, sizeof(int));
+	for (int i = 0; i < data->size; i++) {
+		rule *p = data->list + i;
+		if ((unsigned int) p->protocol[0]==0)
+			protocal[0]++;
+		else protocal[(unsigned int) p->protocol[1]]++;
+	}
+	int count=0;
+	FILE *fp = fopen(outputFileName, "w");
+	fprintf(fp, "%s: ", outputFileName);
+	for (int i = 0; i < 257; i++) {
+		if (protocal[i]>0){
+			fprintf(fp, "%d:%d, ",i,protocal[i]);
+			count++;
+		}
+	}
+	fprintf(fp, " count=%d\n",count);
+	printf("%s: %d protocols.\n",outputFileName,count);
+	fclose(fp);
+	free(protocal);
 }
 
 double get_memory(Cell *c_list) {
