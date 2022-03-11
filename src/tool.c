@@ -67,6 +67,11 @@ void add_message(ACL_messages* messages, message* m)
 	}
 }
 
+double get_nano_time(struct timespec* a, struct timespec* b)
+{
+	return (b->tv_sec - a->tv_sec) * 1000000000 + b->tv_nsec - a->tv_nsec;
+}
+
 inline uint64_t GetCPUCycle()
 {
 #ifdef __x86_64__

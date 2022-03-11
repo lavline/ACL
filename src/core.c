@@ -71,7 +71,13 @@ void insert(Cell* c_list, rule* r)
 	else c_id[SPORT_LAYER] = SPORT_END_CELL;
 #endif
 #if DPORT
-	if (p->destination_port[0] >> DPORT_WIDTH == p->destination_port[1] >> DPORT_WIDTH)c_id[DPORT_LAYER] = p->destination_port[0] >> DPORT_WIDTH;
+	if (p->destination_port[1] - p->destination_port[0] < DPORT_OVERLAP) {
+		float center = (p->destination_port[0] + p->destination_port[1]) / 2.0;
+		if (center < DPORT_SLICE)c_id[DPORT_LAYER] = 0;
+		else if (center > (65536 - DPORT_SLICE))c_id[DPORT_LAYER] = DPORT_END_CELL - 1;
+		else c_id[DPORT_LAYER] = (int)((center - DPORT_SLICE) / DPORT_OVERLAP);
+	}
+	else if (((p->destination_port[0] >> DPORT_OVERLAP_BIT )+ 1) == p->destination_port[1] >> DPORT_OVERLAP_BIT)c_id[DPORT_LAYER] = p->destination_port[0] >> DPORT_OVERLAP_BIT;
 	else c_id[DPORT_LAYER] = DPORT_END_CELL;
 #endif
 
@@ -111,7 +117,9 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 	//for (int num = 0; num < RECORD_STEP; num++) {
 #if ENABLE_LOG
 		log->rules = log->ele = 0;
+#if LOG_LEVEL == 2
 		memset(log->list, 0, (1 << LEVEL) * sizeof(LogInCell));
+#endif
 #endif
 		e_protocol = p->protocol;
 		memcpy(&es_ip, p->source_ip, 4);
@@ -119,7 +127,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 		es_port = p->source_port;
 		ed_port = p->destination_port;
 
-		unsigned int c_id[LEVEL][2];
+		unsigned int c_id[LEVEL][3];
 
 #if PROTO
 		switch ((unsigned int)p->protocol)
@@ -176,8 +184,15 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 		c_id[SPORT_LAYER][1] = SPORT_END_CELL;
 #endif
 #if DPORT
-		c_id[DPORT_LAYER][0] = p->destination_port >> DPORT_WIDTH;
-		c_id[DPORT_LAYER][1] = DPORT_END_CELL;
+		int dc_size = 0;
+		if (p->destination_port < DPORT_OVERLAP) { c_id[DPORT_LAYER][dc_size++] = 0; }
+		else if (p->destination_port < DPORT_OVERLAP) { c_id[DPORT_LAYER][dc_size++] = DPORT_END_CELL - 1; }
+		else {
+			c_id[DPORT_LAYER][dc_size] = (p->destination_port >> DPORT_OVERLAP_BIT) - 1;
+			c_id[DPORT_LAYER][dc_size + 1] = c_id[DPORT_LAYER][dc_size] + 1;
+			dc_size += 2;
+		}
+		c_id[DPORT_LAYER][dc_size++] = DPORT_END_CELL;
 #endif	
 		
 		res = 0x7FFFFFFF;
@@ -190,7 +205,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 			int id_1 = c_id[0][i] * LAYER_1;
 			for (int j = 0; j < 2; j++) {
 				int id_2 = (id_1 + c_id[1][j]) * LAYER_2;
-				for (int v = 0; v < 2; v++) {
+				for (int v = 0; v < dc_size; v++) {
 #if LEVEL == 3
 					Cell* q = _c + id_2 + c_id[2][v];
 #endif
@@ -209,6 +224,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 							int _size = q->size;
 #if ENABLE_LOG
 							cell_num++;
+#if LOG_LEVEL == 2
 #if LEVEL == 3
 							log->list[cell_num].id = id_2 + c_id[2][v];
 #endif
@@ -231,6 +247,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 #endif
 							if(_size)log->list[cell_num].HPRI = q->list[0].PRI;
 #endif
+#endif
 
 							if (_size == 0)continue;
 							data* _d = q->list - 1;
@@ -240,24 +257,33 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 
 #if ENABLE_LOG
 								log->rules++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].rules++;
+#endif
 								//__builtin_prefetch(_d + 4, 0);
+
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								if (res < _d->PRI)break; // check priority
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								if (e_protocol != _d->protocol[1] && _d->protocol[0] != 0)continue; // check protocol
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								unsigned int m_bit = 32 - (unsigned int)_d->destination_mask;  // comput the bit number need to move
@@ -266,7 +292,9 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								m_bit = 32 - (unsigned int)_d->source_mask;  // comput the bit number need to move
@@ -275,21 +303,27 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								if (ed_port < _d->destination_port[0] || _d->destination_port[1] < ed_port)continue;  // if destination port not match, check next
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								if (es_port < _d->source_port[0] || _d->source_port[1] < es_port)continue;  // if source port not match, check next
 
 								res = _d->PRI;
 #if ENABLE_LOG
+#if LOG_LEVEL == 2
 								log->list[cell_num].match = res;
+#endif
 #endif
 								break;
 							}
@@ -330,12 +364,12 @@ void get_cell_size(Cell* c)
 *   对5元组进行分析，其中ip部分按照每个字节进行分析
 *   协议层分为5个部分：TCP、ICMP、UDP、其他协议、通配符
 *   IP层按字节进行分析，分为258个部分，其中0-255对应准确的ip，256对应范围ip，257对应通配ip即掩码为0
-*   端口号分为258个部分，其中0-255对应被包含的端口区间，256对应无法包含的区间，257对应通配区间即[0-65535]
+*   端口号分为258个部分，其中0-255对应被包含的端口区间，256对应无法包含的区间，257对应通配区间即[0-65535] size=256
 */
 /***************************************************/
 void analyse_log(ACL_rules* data)
 {
-	int _log[11][258] = { 0 };
+	int _log[11][65537] = { 0 };
 
 	for (int i = 0; i < data->size; i++) {
 		rule* p = data->list + i;
@@ -443,12 +477,19 @@ void analyse_log(ACL_rules* data)
 				break;
 			}
 		}
+		
 		if (p->source_port[0] == 0 && p->source_port[1] == (unsigned int)65535) c_id[9] = 257;
 		else if (p->source_port[0] == p->source_port[1] || p->source_port[0] >> 8 == p->source_port[1] >> 8)c_id[9] = p->source_port[0] >> 8;
 		else c_id[9] = 256;
-		if (p->destination_port[0] == 0 && p->destination_port[1] == (unsigned int)65535) c_id[10] = 257;
-		else if (p->destination_port[0] == p->destination_port[1] || p->destination_port[0] >> 8 == p->destination_port[1] >> 8)c_id[10] = p->source_port[0] >> 8;
-		else c_id[10] = 256;
+
+		if (p->destination_port[1] - p->destination_port[0] < DPORT_OVERLAP) {
+			float center = (p->destination_port[0] + p->destination_port[1]) / 2.0;
+			if (center < DPORT_SLICE)c_id[10] = 0;
+			else if (center > (65536 - DPORT_SLICE))c_id[10] = DPORT_END_CELL - 1;
+			else c_id[10] = (unsigned int)(center - DPORT_SLICE) >> DPORT_OVERLAP_BIT;
+		}
+		else if ((p->destination_port[0] >> DPORT_OVERLAP_BIT + 1) == p->destination_port[1] >> DPORT_OVERLAP_BIT)c_id[10] = p->destination_port[0] >> DPORT_OVERLAP_BIT;
+		else c_id[10] = DPORT_END_CELL;
 
 		for (int j = 0; j < 11; j++) {
 			_log[j][c_id[j]]++;
@@ -457,16 +498,30 @@ void analyse_log(ACL_rules* data)
 
 	FILE* fp = NULL;
 	fp = fopen("analyse_data.txt", "w");
-	fprintf(fp, "0 ");
+	fprintf(fp, "proto ");
 	for (int j = 0; j < 5; j++)
 		fprintf(fp, "%d ", _log[0][j]);
 	fprintf(fp, "\n");
-	for (int i = 1; i < 11; i++) {
-		fprintf(fp, "%d ", i);
+	for (int i = 1; i < 5; i++) {
+		fprintf(fp, "sip_%d ", i);
 		for (int j = 0; j < 258; j++)
 			fprintf(fp, "%d ", _log[i][j]);
 		fprintf(fp, "\n");
 	}
+	for (int i = 5; i < 9; i++) {
+		fprintf(fp, "dip_%d ", i - 4);
+		for (int j = 0; j < 258; j++)
+			fprintf(fp, "%d ", _log[i][j]);
+		fprintf(fp, "\n");
+	}
+	fprintf(fp, "sport ");
+	for (int j = 0; j < 258; j++)
+		fprintf(fp, "%d ", _log[9][j]);
+	fprintf(fp, "\n");
+	fprintf(fp, "dport ");
+	for (int j = 0; j < DPORT_SIZE; j++)
+		fprintf(fp, "%d ", _log[10][j]);
+	fprintf(fp, "\n");
 	fclose(fp);
 }
 
@@ -605,12 +660,12 @@ int check_configure()
 #if SPORT
 	enable_layer++;
 	printf("--Sport--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", SPORT_LAYER, SPORT_SIZE, SPORT_END_CELL, SPORT_WIDTH);
-	if (!check_layer_configure(SPORT_LAYER, SPORT_SIZE, SPORT_END_CELL, SPORT_WIDTH, layer, check_layer, 65536))check_setting = 0;
+	//if (!check_layer_configure(SPORT_LAYER, SPORT_SIZE, SPORT_END_CELL, SPORT_WIDTH, layer, check_layer, 65536))check_setting = 0;
 #endif
 #if DPORT
 	enable_layer++;
 	printf("--Dport--  [layer_id]: %3d [layer_size]: %3d [end_id]: %3d [width]: %d\n", DPORT_LAYER, DPORT_SIZE, DPORT_END_CELL, DPORT_WIDTH);
-	if (!check_layer_configure(DPORT_LAYER, DPORT_SIZE, DPORT_END_CELL, DPORT_WIDTH, layer, check_layer, 65536))check_setting = 0;
+	//if (!check_layer_configure(DPORT_LAYER, DPORT_SIZE, DPORT_END_CELL, DPORT_WIDTH_BIT, layer, check_layer, 65536))check_setting = 0;
 #endif
 	printf("**********************************************************************\n");
 	if (enable_layer != LEVEL) {
