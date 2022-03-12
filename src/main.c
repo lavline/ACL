@@ -92,12 +92,14 @@ int main() {
 		total_cycle += cycle;
 #if ENABLE_LOG
 		fprintf(res_fp, "message %d match_rule %d cycle %d check_rules %d check_element %d\n", i, res, cycle, match_log.rules, match_log.ele);
+#if LOG_LEVEL == 2
 		for (int j = 0; j < (1 << LEVEL); j++) {
 			fprintf(res_fp, "\tid %d ", match_log.list[j].id);
 			for (int k = 0; k < LEVEL; k++) fprintf(res_fp, "%d ", match_log.list[j].layer[k]);
 			fprintf(res_fp, "size %d CRul %d CEle %d HPRI %d match %d\n",
 				match_log.list[j].size, match_log.list[j].rules, match_log.list[j].ele, match_log.list[j].HPRI, match_log.list[j].match);
 		}
+#endif
 #else
 		fprintf(res_fp, "message %d match_rule %d cycle %d\n", i, res, cycle);
 #endif

@@ -111,7 +111,9 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 	//for (int num = 0; num < RECORD_STEP; num++) {
 #if ENABLE_LOG
 		log->rules = log->ele = 0;
+#if LOG_LEVEL == 2
 		memset(log->list, 0, (1 << LEVEL) * sizeof(LogInCell));
+#endif
 #endif
 		e_protocol = p->protocol;
 		memcpy(&es_ip, p->source_ip, 4);
@@ -209,6 +211,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 							int _size = q->size;
 #if ENABLE_LOG
 							cell_num++;
+#if LOG_LEVEL == 2
 #if LEVEL == 3
 							log->list[cell_num].id = id_2 + c_id[2][v];
 #endif
@@ -231,7 +234,7 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 #endif
 							if(_size)log->list[cell_num].HPRI = q->list[0].PRI;
 #endif
-
+#endif
 							if (_size == 0)continue;
 							data* _d = q->list - 1;
 							unsigned int _ip;
@@ -240,24 +243,32 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 
 #if ENABLE_LOG
 								log->rules++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].rules++;
+#endif
 								//__builtin_prefetch(_d + 4, 0);
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								if (res < _d->PRI)break; // check priority
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								if (e_protocol != _d->protocol[1] && _d->protocol[0] != 0)continue; // check protocol
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								unsigned int m_bit = 32 - (unsigned int)_d->destination_mask;  // comput the bit number need to move
@@ -266,7 +277,9 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								m_bit = 32 - (unsigned int)_d->source_mask;  // comput the bit number need to move
@@ -275,21 +288,27 @@ int match_with_log(Cell* c_list, message* m, int *_cycle, MatchLog *log)
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								if (ed_port < _d->destination_port[0] || _d->destination_port[1] < ed_port)continue;  // if destination port not match, check next
 
 #if ENABLE_LOG
 								log->ele++;
+#if LOG_LEVEL == 2
 								log->list[cell_num].ele++;
+#endif
 #endif
 
 								if (es_port < _d->source_port[0] || _d->source_port[1] < es_port)continue;  // if source port not match, check next
 
 								res = _d->PRI;
 #if ENABLE_LOG
+#if LOG_LEVEL == 2
 								log->list[cell_num].match = res;
+#endif
 #endif
 								break;
 							}

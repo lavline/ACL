@@ -77,8 +77,9 @@ int read_contest_rule(const char* file_name, ACL_rules* rules)
 		//printf("@%u.%u.%u.%u/%u\t%u.%u.%u.%u/%u\t%u : %u\t%u : %u\t0x%02x\n", sIp[0], sIp[1], sIp[2], sIp[3], sIp[4], dIp[0], dIp[1], dIp[2], dIp[3], dIp[4], sPort[0], sPort[1], dPort[0], dPort[1], protocol[0]);
 		rule r;
 		r.PRI = i;
-		if (r.protocol[1] != 0)r.protocol[0] = 0xFF; // mask
 		r.protocol[1] = protocol[0]; // proto
+		if (r.protocol[1] != 0)r.protocol[0] = 0xFF; // mask
+		else r.protocol[0] = 0;
 		r.source_mask = (unsigned char)sIp[4];
 		r.destination_mask = (unsigned char)dIp[4];
 		int k = 4;
