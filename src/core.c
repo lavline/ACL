@@ -338,7 +338,7 @@ void get_cell_size(Cell* c)
 	FILE* fp = NULL;
 	fp = fopen("cell_size.txt", "w");
 	for (int i = 0; i < CELL_SIZE; i++) {
-		fprintf(fp, "ID: %d size: %d\n", i, (c + i)->size);
+		if (c[i].size > 0)fprintf(fp, "ID: %d size: %d\n", i, (c + i)->size);
 	}
 	fclose(fp);
 }

@@ -62,10 +62,24 @@ int main() {
 	printf("avg insert cycle: %f\n", (double)insert_cycle / datasets.size);
 	free(index_array);
 
+	/*FILE* cell_fp = NULL;
+	cell_fp = fopen("index.txt", "w");
+	for (int i = 0; i < CELL_SIZE; i++) {
+		if (index[i].size > 1000) {
+			fprintf(cell_fp, "cell_id=%d, cell_size=%d\n", i, index[i].size);
+			data* _d = index[i].list;
+			for (int j = 0; j < index[i].size; j++)fprintf(cell_fp, "\tsip=%u.%u.%u.%u/%u,dip=%u.%u.%u.%u/%u,sport=%u:%u,dport=%u:%u,proto=%u,index=%u\n",
+				_d[j].source_ip[3], _d[j].source_ip[2], _d[j].source_ip[1], _d[j].source_ip[0], _d[j].source_mask,
+				_d[j].destination_ip[3], _d[j].destination_ip[2], _d[j].destination_ip[1], _d[j].destination_ip[0], _d[j].destination_mask,
+				_d[j].source_port[0], _d[j].source_port[1], _d[j].destination_port[0], _d[j].destination_port[1], (unsigned int)(_d[j].protocol[1]), _d[j].PRI);
+		}
+	}
+	fclose(cell_fp);*/
+
 	//check_indexCell(index + 4934205);
 
 #if ENABLE_ANALYSE
-	//analyse_log(&datasets);
+	analyse_log(&datasets);
 	get_cell_size(index);
 	printf("%f MB\n", get_memory(index));
 #endif
