@@ -67,6 +67,25 @@ void add_message(ACL_messages* messages, message* m)
 	}
 }
 
+void add_cell(CellList* _list, Cell* _c) {
+	if (_list->size < _list->capacity) {
+		memcpy(_list->list + _list->size, _c, sizeof(Cell));
+		++_list->size;
+	}
+	else {
+		_list->capacity += 8;
+		Cell* p = (Cell*)realloc(_list->list, _list->capacity * sizeof(Cell));
+		if (p == NULL) {
+			fprintf(stderr, "Error - unable to allocate required memory\n");
+		}
+		else {
+			_list->list = p;
+			memcpy(_list->list + _list->size, _c, sizeof(Cell));
+			++_list->size;
+		}
+	}
+}
+
 double get_nano_time(struct timespec* a, struct timespec* b)
 {
 	return (b->tv_sec - a->tv_sec) * 1000000000 + b->tv_nsec - a->tv_nsec;

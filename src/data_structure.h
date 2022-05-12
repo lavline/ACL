@@ -1,6 +1,7 @@
 #ifndef __DATA_STRUCTURE_H_
 #define __DATA_STRUCTURE_H_
 #include<stdio.h>
+#include<stdbool.h>
 
 typedef struct rule {
 	int PRI;  //priority
@@ -36,8 +37,21 @@ typedef struct Cell
 {
 	unsigned int size;
 	unsigned int capacity;
-	data* list;
+	//bool enable_subcell;
+	//unsigned char config[2];
+	//union
+	//{
+	//	Cell* subCell;
+		data* list;
+	//};
 }Cell;
+
+typedef struct CellList
+{
+	unsigned int size;
+	unsigned int capacity;
+	Cell* list;
+}CellList;
 
 typedef struct message
 {
@@ -57,6 +71,7 @@ typedef struct ACL_messages
 
 typedef struct LogInCell
 {
+	int tree_id;
 	int id;
 	int layer[5];
 	int size;
