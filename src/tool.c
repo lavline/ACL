@@ -67,6 +67,19 @@ void add_message(ACL_messages* messages, message* m)
 	}
 }
 
+void integer_list_push_back(IntegerList* a, int* b)
+{
+	if (!(a->size < a->capacity)) {
+		a->capacity += 8;
+		int* p = (int*)realloc(a->list, a->capacity * sizeof(int));
+		if (p == NULL)fprintf(stderr, "Error - unable to allocate required memory\n");
+		else a->list = p;
+	}
+	memcpy(a->list + a->size, b, sizeof(int));
+	++a->size;
+}
+
+
 double get_nano_time(struct timespec* a, struct timespec* b)
 {
 	return (b->tv_sec - a->tv_sec) * 1000000000 + b->tv_nsec - a->tv_nsec;

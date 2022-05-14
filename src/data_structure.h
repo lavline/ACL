@@ -73,4 +73,11 @@ typedef struct MatchLog
 	LogInCell* list;
 }MatchLog;
 
+typedef struct IntegerList
+{
+	uint32_t size;
+	uint32_t capacity;
+	int* list;
+}IntegerList;
+
 #endif //__DATA_STRUCTURE_H_

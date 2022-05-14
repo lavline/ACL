@@ -10,6 +10,7 @@
 void add_rule(ACL_rules* rules, rule* r);
 void add_data(Cell* c, data* d);
 void add_message(ACL_messages* messages, message* m);
+void integer_list_push_back(IntegerList* a, int* b);
 
 double get_nano_time(struct timespec* a, struct timespec* b);
 

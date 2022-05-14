@@ -489,6 +489,35 @@ void analyse_log(ACL_rules* data)
 	fclose(fp);
 }
 
+void analyse_data(ACL_rules* data)
+{
+	FILE* fp = NULL;
+	fp = fopen("data_analyse.txt", "w");
+	int counter[8][257] = { 0 };
+	for (int i = 0; i < data->size; ++i) {
+		int k = 4; rule* _r = data->list + i;
+		int mask = _r->source_mask;
+		for (int j = 0; j < 4; j++) {
+			mask -= 8;
+			if (mask >= 0)++counter[j][_r->source_ip[--k]];
+			else ++counter[j][256];
+		}
+		k = 4; mask = _r->destination_mask;
+		for (int j = 4; j < 8; j++) {
+			mask -= 8;
+			if (mask >= 0)++counter[j][_r->destination_ip[--k]];
+			else ++counter[j][256];
+		}
+	}
+	for (int i = 0; i < 8; ++i) {
+		for (int j = 0; j < 257; ++j) {
+			fprintf(fp, "%d ", counter[i][j]);
+		}
+		fprintf(fp, "\n");
+	}
+	fclose(fp);
+}
+
 double get_memory(Cell* c_list)
 {
 	size_t mem = CELL_SIZE * sizeof(Cell);
@@ -655,4 +684,19 @@ void check_indexCell(Cell* index)
 		printf("%u %u ", (unsigned int)d[i].source_port[0], (unsigned int)d[i].source_port[1]);
 		printf("%u %u\n", (unsigned int)d[i].destination_port[0], (unsigned int)d[i].destination_port[1]);
 	}
+}
+
+int check_correct(data* a, message* b)
+{
+	if (a->protocol[0] != 0 && (uint32_t)a->protocol[1] != b->protocol)return 0;
+	int mask = 32 - (uint32_t)a->source_mask;
+	uint32_t sip, dip;
+	memcpy(&sip, a->source_ip, 4); memcpy(&dip, b->source_ip, 4);
+	if (mask != 32 && (sip >> mask) != (dip >> mask))return 0;
+	mask = 32 - (uint32_t)a->destination_mask;
+	memcpy(&sip, a->destination_ip, 4); memcpy(&dip, b->destination_ip, 4);
+	if (mask != 32 && (sip >> mask) != (dip >> mask))return 0;
+	if (b->source_port < a->source_port[0] || b->source_port > a->source_port[1])return 0;
+	if (b->destination_port < a->destination_port[0] || b->destination_port > a->destination_port[1])return 0;
+	return 1;
 }

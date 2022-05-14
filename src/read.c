@@ -38,7 +38,7 @@ int read_rules(const char* file_name, ACL_rules* rules)
 	return 1;
 }
 
-int read_messages(const char* file_name, ACL_messages* messages)
+int read_messages(const char* file_name, ACL_messages* messages, IntegerList* check_list)
 {
 	FILE* fp = NULL;
 	fp = fopen(file_name, "r");
@@ -48,9 +48,11 @@ int read_messages(const char* file_name, ACL_messages* messages)
 	}
 	message _m = { 0 };
 	unsigned int ip_src, ip_des;
-	while (fscanf(fp, "%u\t%u\t%hu\t%hu\t%u\t%*u\t%*d\n", &ip_src, &ip_des, &_m.source_port, &_m.destination_port, &_m.protocol) != EOF) {
+	int result;
+	while (fscanf(fp, "%u\t%u\t%hu\t%hu\t%u\t%*u\t%d\n", &ip_src, &ip_des, &_m.source_port, &_m.destination_port, &_m.protocol, &result) != EOF) {
 		memcpy(_m.source_ip, &ip_src, 4);
 		memcpy(_m.destination_ip, &ip_des, 4);
+		integer_list_push_back(check_list, &result);
 		//printf("%u\t%u\t%u\t%u\t%u\n", ip_src, ip_des, _m.source_port, _m.destination_port, _m.protocol);
 		add_message(messages, &_m);
 	}
